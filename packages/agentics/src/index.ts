@@ -1,10 +1,6 @@
 import type { IConversationAnalysis } from '@agentics/ai';
 import { createProvider } from '@agentics/ai';
-import {
-  compileWorkflowCommand,
-  downloadArtifactsCommand,
-  runWorkflowCommand
-} from '@agentics/github';
+import { compileWorkflowCommand, downloadArtifactsCommand, runWorkflowCommand } from '@agentics/github';
 
 /** Default directory for storing workflow run refinement artifacts. */
 const DEFAULT_REFINEMENTS_DIR = 'refinements';
@@ -54,7 +50,7 @@ export function createArtifactPaths(runId: string, refinementsDir = DEFAULT_REFI
     baseDir,
     conversation: `${baseDir}/conversation.txt`,
     prompt: `${baseDir}/prompt.txt`,
-    usage: `${baseDir}/usage.json`
+    usage: `${baseDir}/usage.json`,
   };
 }
 
@@ -70,9 +66,9 @@ export function createRefinementPlan(workflowPath: string, runId: string): IRefi
     commands: {
       compile: compileWorkflowCommand(workflowPath),
       downloadArtifacts: downloadArtifactsCommand(runId, `${DEFAULT_REFINEMENTS_DIR}/${runId}`),
-      run: runWorkflowCommand(workflowPath)
+      run: runWorkflowCommand(workflowPath),
     },
     runId,
-    workflowPath
+    workflowPath,
   };
 }

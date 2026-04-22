@@ -6,10 +6,7 @@ const CLI_ARG_OFFSET = 2;
 
 const program = new Command();
 
-program
-  .name('agentics')
-  .description('Agentics workflow refinement CLI')
-  .version('0.1.0');
+program.name('agentics').description('Agentics workflow refinement CLI').version('0.1.0');
 
 attachRefineCommand(program);
 

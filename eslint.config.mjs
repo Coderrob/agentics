@@ -1,15 +1,11 @@
 import zeroTolerance from '@coderrob/eslint-plugin-zero-tolerance';
 import tsParser from '@typescript-eslint/parser';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
-    ignores: [
-      '**/dist/**',
-      '**/node_modules/**',
-      '**/coverage/**',
-      '**/.turbo/**'
-    ]
+    ignores: ['**/dist/**', '**/node_modules/**', '**/coverage/**', '**/.turbo/**'],
   },
   {
     ...zeroTolerance.configs.strict,
@@ -18,13 +14,13 @@ export default [
       parser: tsParser,
       parserOptions: {
         project: './tsconfig.base.json',
-        tsconfigRootDir: import.meta.dirname
-      }
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     rules: {
       ...zeroTolerance.configs.strict.rules,
-      'zero-tolerance/prefer-result-return': 'off'
-    }
+      'zero-tolerance/prefer-result-return': 'off',
+    },
   },
   {
     files: ['**/*.test.ts'],
@@ -34,7 +30,8 @@ export default [
       'zero-tolerance/no-magic-strings': 'off',
       'zero-tolerance/prefer-result-return': 'off',
       'zero-tolerance/require-jsdoc-anonymous-functions': 'off',
-      'zero-tolerance/require-jsdoc-functions': 'off'
-    }
-  }
+      'zero-tolerance/require-jsdoc-functions': 'off',
+    },
+  },
+  eslintConfigPrettier,
 ];

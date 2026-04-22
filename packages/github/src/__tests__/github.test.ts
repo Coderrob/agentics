@@ -6,7 +6,7 @@ import {
   downloadArtifactsCommand,
   downloadArtifactsWithFallback,
   runWorkflow,
-  runWorkflowCommand
+  runWorkflowCommand,
 } from '../index.js';
 
 const execFileMock = vi.hoisted(() => vi.fn());
@@ -22,28 +22,28 @@ const ZERO_DELAY = 0;
 describe('github command builders', () => {
   it('should build compile workflow command', () => {
     expect(compileWorkflowCommand('.github/workflows/ci.yml')).toBe(
-      'gh aw compile --workflow .github/workflows/ci.yml'
+      'gh aw compile --workflow .github/workflows/ci.yml',
     );
   });
 
   it('should build download artifacts command', () => {
     expect(downloadArtifactsCommand('run-123', 'refinements/run-123')).toBe(
-      'gh run download run-123 -D refinements/run-123'
+      'gh run download run-123 -D refinements/run-123',
     );
   });
 
   it('should build run workflow command', () => {
-    expect(runWorkflowCommand('.github/workflows/ci.yml')).toBe(
-      'gh aw run --workflow .github/workflows/ci.yml'
-    );
+    expect(runWorkflowCommand('.github/workflows/ci.yml')).toBe('gh aw run --workflow .github/workflows/ci.yml');
   });
 });
 
 describe('github async wrappers', () => {
   it('should execute compile workflow', async () => {
-    execFileMock.mockImplementationOnce((_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
-      cb(null, { stdout: MOCK_STDOUT, stderr: MOCK_STDERR });
-    });
+    execFileMock.mockImplementationOnce(
+      (_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
+        cb(null, { stdout: MOCK_STDOUT, stderr: MOCK_STDERR });
+      },
+    );
     const result = await compileWorkflow('.github/workflows/ci.yml');
     expect(result.stdout).toBe(MOCK_STDOUT);
     expect(result.stderr).toBe(MOCK_STDERR);
@@ -51,18 +51,22 @@ describe('github async wrappers', () => {
 
   it('should download artifacts and create output dir', async () => {
     mkdirMock.mockImplementationOnce(() => Promise.resolve());
-    execFileMock.mockImplementationOnce((_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
-      cb(null, { stdout: MOCK_STDOUT, stderr: MOCK_STDERR });
-    });
+    execFileMock.mockImplementationOnce(
+      (_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
+        cb(null, { stdout: MOCK_STDOUT, stderr: MOCK_STDERR });
+      },
+    );
     const result = await downloadArtifacts('run-123', 'refinements/run-123');
     expect(result.stdout).toBe(MOCK_STDOUT);
   });
 
   it('should return primary download when it succeeds', async () => {
     mkdirMock.mockImplementationOnce(() => Promise.resolve());
-    execFileMock.mockImplementationOnce((_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
-      cb(null, { stdout: MOCK_STDOUT, stderr: MOCK_STDERR });
-    });
+    execFileMock.mockImplementationOnce(
+      (_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
+        cb(null, { stdout: MOCK_STDOUT, stderr: MOCK_STDERR });
+      },
+    );
     const result = await downloadArtifactsWithFallback('run-123', 'out/');
     expect(result.stdout).toBe(MOCK_STDOUT);
   });
@@ -80,24 +84,30 @@ describe('github async wrappers', () => {
     execFileMock.mockImplementationOnce((_cmd: string, _args: readonly string[], cb: (e: Error) => void) => {
       cb(new Error('not found'));
     });
-    execFileMock.mockImplementationOnce((_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
-      cb(null, { stdout: '', stderr: '' });
-    });
+    execFileMock.mockImplementationOnce(
+      (_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
+        cb(null, { stdout: '', stderr: '' });
+      },
+    );
     mkdirMock.mockImplementationOnce(() => Promise.resolve());
-    execFileMock.mockImplementationOnce((_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
-      cb(null, { stdout: MOCK_STDOUT, stderr: MOCK_STDERR });
-    });
+    execFileMock.mockImplementationOnce(
+      (_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
+        cb(null, { stdout: MOCK_STDOUT, stderr: MOCK_STDERR });
+      },
+    );
     const result = await downloadArtifactsWithFallback('run-123', 'out/', {
       fallbackWorkflow: 'fallback.yml',
-      retryDelayMs: ZERO_DELAY
+      retryDelayMs: ZERO_DELAY,
     });
     expect(result.stdout).toBe(MOCK_STDOUT);
   });
 
   it('should execute run workflow', async () => {
-    execFileMock.mockImplementationOnce((_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
-      cb(null, { stdout: MOCK_STDOUT, stderr: MOCK_STDERR });
-    });
+    execFileMock.mockImplementationOnce(
+      (_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
+        cb(null, { stdout: MOCK_STDOUT, stderr: MOCK_STDERR });
+      },
+    );
     const result = await runWorkflow('.github/workflows/ci.yml');
     expect(result.stdout).toBe(MOCK_STDOUT);
   });

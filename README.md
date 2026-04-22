@@ -1,6 +1,7 @@
 # Agentics Monorepo
 
-A TypeScript-first TurboRepo monorepo for building and refining agentic workflows with GitHub-integrated automation and AI-assisted optimization.
+A TypeScript-first TurboRepo monorepo for building and refining agentic workflows with
+GitHub-integrated automation and AI-assisted optimization.
 
 ## Project Overview
 

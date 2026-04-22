@@ -37,9 +37,7 @@ describe('analyzeConversation', () => {
   });
 
   it('should detect tool call mentions in conversation', () => {
-    const result = analyzeConversation(
-      'invoke tool, invoke tool, invoke tool, invoke tool, call tool again'
-    );
+    const result = analyzeConversation('invoke tool, invoke tool, invoke tool, invoke tool, call tool again');
     expect(result.toolCallMentions).toBeGreaterThan(0);
     expect(result.recommendations.some((r) => r.includes('Consolidate'))).toBe(true);
   });

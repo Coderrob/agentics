@@ -1,0 +1,20 @@
+# Build outputs
+dist/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Cache directories
+.turbo/
+.cache/
+
+# Lock files
+package-lock.json
+
+# Generated refinement outputs
+refinements/
+
+# dotenv files
+.env
+.env.*

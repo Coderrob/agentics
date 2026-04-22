@@ -27,9 +27,7 @@ describe('OllamaProvider.analyzeConversation', () => {
 
   it('should detect excessive tool calls and return a consolidation recommendation', () => {
     const provider = new OllamaProvider();
-    const result = provider.analyzeConversation(
-      'invoke tool, invoke tool, invoke tool, invoke tool'
-    );
+    const result = provider.analyzeConversation('invoke tool, invoke tool, invoke tool, invoke tool');
     expect(result.toolCallMentions).toBeGreaterThan(3);
     expect(result.recommendations).toContain('Consolidate tool usage where possible to minimize call count.');
   });
@@ -38,9 +36,7 @@ describe('OllamaProvider.analyzeConversation', () => {
     const provider = new OllamaProvider();
     const result = provider.analyzeConversation('Clean workflow with no redundancy.');
     expect(result.redundantReasoningMentions).toBe(0);
-    expect(result.recommendations).toContain(
-      'Workflow appears lean; benchmark to confirm performance goals.'
-    );
+    expect(result.recommendations).toContain('Workflow appears lean; benchmark to confirm performance goals.');
   });
 
   it('should return ollama provider analysis via createProvider', () => {

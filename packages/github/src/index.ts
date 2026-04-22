@@ -96,7 +96,7 @@ export function downloadArtifactsCommand(runId: string, outputDir: string): stri
 export async function downloadArtifactsWithFallback(
   runId: string,
   outputDir: string,
-  options: Readonly<IDownloadWithFallbackOptions> = {}
+  options: Readonly<IDownloadWithFallbackOptions> = {},
 ): Promise<IExecResult> {
   const { fallbackWorkflow, retryDelayMs = DEFAULT_RETRY_DELAY_MS } = options;
 

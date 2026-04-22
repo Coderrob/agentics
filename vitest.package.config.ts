@@ -13,9 +13,9 @@ export default defineConfig({
         branches: COVERAGE_THRESHOLD,
         functions: COVERAGE_THRESHOLD,
         lines: COVERAGE_THRESHOLD,
-        statements: COVERAGE_THRESHOLD
-      }
+        statements: COVERAGE_THRESHOLD,
+      },
     },
-    include: ['src/**/*.test.ts']
-  }
+    include: ['src/**/*.test.ts'],
+  },
 });

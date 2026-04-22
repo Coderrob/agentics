@@ -46,9 +46,7 @@ export class OllamaProvider implements IAIProvider {
     const toolCallMentions = (content.match(/tool call|call tool|invoke/gi) ?? []).length;
 
     const redundancyRecs =
-      redundantReasoningMentions > 0
-        ? ['Reduce repeated reasoning loops before direct execution.']
-        : [];
+      redundantReasoningMentions > 0 ? ['Reduce repeated reasoning loops before direct execution.'] : [];
 
     const toolCallRecs =
       toolCallMentions > MAX_TOOL_CALL_MENTIONS

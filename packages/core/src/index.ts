@@ -36,14 +36,14 @@ export interface IBenchmarkReport {
  */
 export function benchmarkUsage(
   baseline: Readonly<IUsageMetrics>,
-  candidate: Readonly<IUsageMetrics>
+  candidate: Readonly<IUsageMetrics>,
 ): IBenchmarkReport {
   return {
     baseline,
     candidate,
     improvements: summarizeGoals(baseline, candidate),
     tokenDelta: totalTokens(baseline) - totalTokens(candidate),
-    toolCallDelta: baseline.toolCalls - candidate.toolCalls
+    toolCallDelta: baseline.toolCalls - candidate.toolCalls,
   };
 }
 
@@ -62,10 +62,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * @param after - Candidate usage metrics.
  * @returns Percentage improvement for each tracked dimension.
  */
-export function summarizeGoals(
-  before: Readonly<IUsageMetrics>,
-  after: Readonly<IUsageMetrics>
-): IOptimizationGoals {
+export function summarizeGoals(before: Readonly<IUsageMetrics>, after: Readonly<IUsageMetrics>): IOptimizationGoals {
   /**
    * Computes the percentage reduction from a baseline value to a next value.
    * @param baseline - Original value.
@@ -73,14 +70,12 @@ export function summarizeGoals(
    * @returns Reduction as a percentage (0–100).
    */
   const reduction = (baseline: number, next: number): number =>
-    baseline === 0
-      ? 0
-      : Number((((baseline - next) / baseline) * PERCENTAGE_BASE).toFixed(DECIMAL_PLACES));
+    baseline === 0 ? 0 : Number((((baseline - next) / baseline) * PERCENTAGE_BASE).toFixed(DECIMAL_PLACES));
 
   return {
     executionTimeReductionPct: reduction(before.executionMs, after.executionMs),
     tokenReductionPct: reduction(totalTokens(before), totalTokens(after)),
-    toolCallReductionPct: reduction(before.toolCalls, after.toolCalls)
+    toolCallReductionPct: reduction(before.toolCalls, after.toolCalls),
   };
 }
 

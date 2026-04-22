@@ -41,14 +41,29 @@ const TOOL_REDUCTION_30 = 30;
 describe('core metrics', () => {
   it('should compute token totals correctly', () => {
     expect(
-      totalTokens({ completionTokens: TOTAL_COMPLETION, executionMs: TOTAL_MS, promptTokens: TOTAL_PROMPT, toolCalls: TOTAL_TOOLS })
+      totalTokens({
+        completionTokens: TOTAL_COMPLETION,
+        executionMs: TOTAL_MS,
+        promptTokens: TOTAL_PROMPT,
+        toolCalls: TOTAL_TOOLS,
+      }),
     ).toBe(EXPECTED_TOTAL);
   });
 
   it('should compute percentage reductions', () => {
     const summary = summarizeGoals(
-      { completionTokens: BASELINE_COMPLETION, executionMs: BASELINE_MS, promptTokens: BASELINE_PROMPT, toolCalls: BASELINE_TOOLS },
-      { completionTokens: CANDIDATE_COMPLETION, executionMs: CANDIDATE_MS, promptTokens: CANDIDATE_PROMPT, toolCalls: CANDIDATE_TOOLS }
+      {
+        completionTokens: BASELINE_COMPLETION,
+        executionMs: BASELINE_MS,
+        promptTokens: BASELINE_PROMPT,
+        toolCalls: BASELINE_TOOLS,
+      },
+      {
+        completionTokens: CANDIDATE_COMPLETION,
+        executionMs: CANDIDATE_MS,
+        promptTokens: CANDIDATE_PROMPT,
+        toolCalls: CANDIDATE_TOOLS,
+      },
     );
     expect(summary.tokenReductionPct).toBe(TOKEN_REDUCTION_25);
     expect(summary.toolCallReductionPct).toBe(REDUCTION_20);
@@ -56,8 +71,18 @@ describe('core metrics', () => {
   });
 
   it('should produce benchmark deltas and improvements', () => {
-    const baseline = { completionTokens: BENCH_BASELINE_COMPLETION, executionMs: BENCH_BASELINE_MS, promptTokens: BENCH_BASELINE_PROMPT, toolCalls: BENCH_BASELINE_TOOLS };
-    const candidate = { completionTokens: BENCH_CANDIDATE_COMPLETION, executionMs: BENCH_CANDIDATE_MS, promptTokens: BENCH_CANDIDATE_PROMPT, toolCalls: BENCH_CANDIDATE_TOOLS };
+    const baseline = {
+      completionTokens: BENCH_BASELINE_COMPLETION,
+      executionMs: BENCH_BASELINE_MS,
+      promptTokens: BENCH_BASELINE_PROMPT,
+      toolCalls: BENCH_BASELINE_TOOLS,
+    };
+    const candidate = {
+      completionTokens: BENCH_CANDIDATE_COMPLETION,
+      executionMs: BENCH_CANDIDATE_MS,
+      promptTokens: BENCH_CANDIDATE_PROMPT,
+      toolCalls: BENCH_CANDIDATE_TOOLS,
+    };
     const report = benchmarkUsage(baseline, candidate);
     expect(report.baseline).toEqual(baseline);
     expect(report.candidate).toEqual(candidate);
@@ -68,14 +93,19 @@ describe('core metrics', () => {
   });
 
   it('should accept valid usage metrics input', () => {
-    const raw = { completionTokens: SAMPLE_COMPLETION, executionMs: SAMPLE_MS, promptTokens: SAMPLE_PROMPT, toolCalls: SAMPLE_TOOLS };
+    const raw = {
+      completionTokens: SAMPLE_COMPLETION,
+      executionMs: SAMPLE_MS,
+      promptTokens: SAMPLE_PROMPT,
+      toolCalls: SAMPLE_TOOLS,
+    };
     expect(validateUsageMetrics(raw)).toEqual(raw);
   });
 
   it('should reject invalid usage metrics input', () => {
     expect(() => validateUsageMetrics(null)).toThrow('Invalid usage metrics');
     expect(() =>
-      validateUsageMetrics({ completionTokens: 0, executionMs: 0, promptTokens: 'x', toolCalls: 0 })
+      validateUsageMetrics({ completionTokens: 0, executionMs: 0, promptTokens: 'x', toolCalls: 0 }),
     ).toThrow('Invalid usage metrics');
     expect(() => validateUsageMetrics({})).toThrow('Invalid usage metrics');
   });

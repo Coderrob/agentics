@@ -28,8 +28,14 @@ describe('benchmark command', () => {
       const baselinePath = join(dir, 'baseline.json');
       const candidatePath = join(dir, 'candidate.json');
 
-      await writeFile(baselinePath, JSON.stringify({ completionTokens: 100, executionMs: 2000, promptTokens: 200, toolCalls: 10 }));
-      await writeFile(candidatePath, JSON.stringify({ completionTokens: 80, executionMs: 1500, promptTokens: 150, toolCalls: 7 }));
+      await writeFile(
+        baselinePath,
+        JSON.stringify({ completionTokens: 100, executionMs: 2000, promptTokens: 200, toolCalls: 10 }),
+      );
+      await writeFile(
+        candidatePath,
+        JSON.stringify({ completionTokens: 80, executionMs: 1500, promptTokens: 150, toolCalls: 7 }),
+      );
 
       const root = new Command();
       registerBenchmarkCommand(root);
@@ -57,9 +63,7 @@ describe('benchmark command', () => {
       root.exitOverride();
       registerBenchmarkCommand(root);
 
-      await expect(
-        root.parseAsync(['node', 'test', 'benchmark', '-b', badPath, '-c', badPath])
-      ).rejects.toThrow();
+      await expect(root.parseAsync(['node', 'test', 'benchmark', '-b', badPath, '-c', badPath])).rejects.toThrow();
     } finally {
       await rm(dir, { recursive: true });
     }
