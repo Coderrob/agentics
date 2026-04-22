@@ -1,8 +1,8 @@
-import { exec } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import { promisify } from 'node:util';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 /** Default delay in milliseconds before retrying artifact download after fallback. */
 const DEFAULT_RETRY_DELAY_MS = 5000;
@@ -21,16 +21,17 @@ export interface IDownloadWithFallbackOptions {
 
 /**
  * Executes the GH AW compile step for the given workflow path.
+ * Arguments are passed directly to the process to prevent shell injection.
  * @param path - Path to the workflow YAML file.
  * @returns Captured stdout and stderr from the compile command.
  */
 export async function compileWorkflow(path: string): Promise<IExecResult> {
-  const result = await execAsync(compileWorkflowCommand(path));
+  const result = await execFileAsync('gh', ['aw', 'compile', '--workflow', path]);
   return { stderr: result.stderr, stdout: result.stdout };
 }
 
 /**
- * Builds the shell command to compile a GH AW workflow file.
+ * Builds the shell command string to compile a GH AW workflow file (for display only).
  * @param path - Path to the workflow YAML file.
  * @returns The shell command string.
  */
@@ -56,18 +57,19 @@ function delay(ms: number): Promise<void> {
 
 /**
  * Downloads workflow run artifacts, creating the output directory if needed.
+ * Arguments are passed directly to the process to prevent shell injection.
  * @param runId - The workflow run ID to download artifacts for.
  * @param outputDir - Local directory to write artifacts into.
  * @returns Captured stdout and stderr from the download command.
  */
 export async function downloadArtifacts(runId: string, outputDir: string): Promise<IExecResult> {
   await mkdir(outputDir, { recursive: true });
-  const result = await execAsync(downloadArtifactsCommand(runId, outputDir));
+  const result = await execFileAsync('gh', ['run', 'download', runId, '-D', outputDir]);
   return { stderr: result.stderr, stdout: result.stdout };
 }
 
 /**
- * Builds the shell command to download run artifacts to a local directory.
+ * Builds the shell command string to download run artifacts (for display only).
  * @param runId - The workflow run ID to download artifacts for.
  * @param outputDir - Local directory path for the downloaded artifacts.
  * @returns The shell command string.
@@ -80,6 +82,7 @@ export function downloadArtifactsCommand(runId: string, outputDir: string): stri
  * Downloads workflow run artifacts with an optional fallback workflow.
  * If the primary download fails and a fallback workflow is configured,
  * triggers the fallback workflow and retries the download after a brief delay.
+ * Arguments are passed directly to the process to prevent shell injection.
  * @param runId - The workflow run ID to download artifacts for.
  * @param outputDir - Local directory path for the downloaded artifacts.
  * @param options - Optional fallback workflow name and retry delay.
@@ -100,7 +103,7 @@ export async function downloadArtifactsWithFallback(
       throw primaryError;
     }
 
-    await execAsync(`gh workflow run ${fallbackWorkflow} -f run_id=${runId}`);
+    await execFileAsync('gh', ['workflow', 'run', fallbackWorkflow, '-f', `run_id=${runId}`]);
     await delay(retryDelayMs);
     return downloadArtifacts(runId, outputDir);
   }
@@ -108,16 +111,17 @@ export async function downloadArtifactsWithFallback(
 
 /**
  * Executes the GH AW run step for the given workflow path.
+ * Arguments are passed directly to the process to prevent shell injection.
  * @param path - Path to the workflow YAML file.
  * @returns Captured stdout and stderr from the run command.
  */
 export async function runWorkflow(path: string): Promise<IExecResult> {
-  const result = await execAsync(runWorkflowCommand(path));
+  const result = await execFileAsync('gh', ['aw', 'run', '--workflow', path]);
   return { stderr: result.stderr, stdout: result.stdout };
 }
 
 /**
- * Builds the shell command to execute a GH AW workflow file.
+ * Builds the shell command string to execute a GH AW workflow file (for display only).
  * @param path - Path to the workflow YAML file.
  * @returns The shell command string.
  */
