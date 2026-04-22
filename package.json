@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "npm@10.9.2",
   "description": "Agentics monorepo for workflow orchestration, refinement, and optimization.",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "type": "module",
   "workspaces": [
     "apps/*",
@@ -19,7 +19,9 @@
     "format:check": "prettier --check .",
     "jscpd": "jscpd",
     "knip": "knip",
-    "lint": "eslint . --max-warnings 0",
+    "lint": "npm run lint:es && npm run lint:md",
+    "lint:es": "eslint . --max-warnings 0",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\"",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck"
   },
@@ -33,6 +35,7 @@
     "jscpd": "^4.0.9",
     "knip": "^6.6.0",
     "madge": "^8.0.0",
+    "markdownlint-cli2": "^0.22.1",
     "prettier": "^3.8.3",
     "tsx": "^4.19.4",
     "turbo": "^2.5.0",

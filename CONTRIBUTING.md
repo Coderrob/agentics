@@ -68,7 +68,7 @@ Every pull request must pass all eight quality gates with zero failures:
 
 Use [Conventional Commits](https://www.conventionalcommits.org):
 
-```
+```text
 <type>(<scope>): <short description>
 ```
 

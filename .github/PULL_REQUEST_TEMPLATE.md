@@ -17,8 +17,7 @@ Closes #<!-- issue number -->
 
 ## Checklist
 
-- [ ] All quality gates pass locally
-      (`npm run typecheck && npm run lint && npm test && npm run coverage && npm run circular && npm run knip && npm run jscpd && npm run format:check`)
+- [ ] All quality gates pass locally (see `AGENTS.md` for the full command)
 - [ ] New or updated code has full JSDoc (`@param`, `@returns`, `@throws`)
 - [ ] No inline `eslint-disable` comments added
 - [ ] No type assertions (`as T`) introduced

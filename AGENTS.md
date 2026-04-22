@@ -15,15 +15,21 @@ Run from the repository root:
 npm run lint
 ```
 
-- Uses **ESLint 10.x** with **`@coderrob/eslint-plugin-zero-tolerance` strict** config.
-- Applies to **all TypeScript files** across the entire monorepo, including config files
-  (`vitest.config.ts`, etc.) and the `refinements/` folder.
-- `--max-warnings 0` is enforced — warnings are treated as errors.
-- **Inline `eslint-disable` comments are strictly forbidden.** The
-  `zero-tolerance/no-eslint-disable` rule enforces this automatically.
-- Do not add per-file or per-line overrides to bypass rules. If a rule is inappropriate for a
-  specific file category (e.g., test files), update `eslint.config.mjs` at the config level — never
-  inline in source.
+This runs two sub-checks in sequence:
+
+- **`npm run lint:es`** — ESLint 10.x with **`@coderrob/eslint-plugin-zero-tolerance` strict**
+  config.
+  - Applies to **all TypeScript files** across the entire monorepo, including config files
+    (`vitest.config.ts`, etc.) and the `refinements/` folder.
+  - `--max-warnings 0` is enforced — warnings are treated as errors.
+  - **Inline `eslint-disable` comments are strictly forbidden.** The
+    `zero-tolerance/no-eslint-disable` rule enforces this automatically.
+  - Do not add per-file or per-line overrides to bypass rules. If a rule is inappropriate for a
+    specific file category (e.g., test files), update `eslint.config.mjs` at the config level —
+    never inline in source.
+- **`npm run lint:md`** — markdownlint-cli2 with rules in `.markdownlint.json`.
+  - All Markdown files are checked; `node_modules/` is excluded.
+  - Line length is capped at 120 characters; code blocks and tables are exempt.
 
 ### 2. Tests — All Must Pass
 
