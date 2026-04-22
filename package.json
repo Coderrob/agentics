@@ -1,0 +1,26 @@
+{
+  "name": "agentics-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "npm@10.9.2",
+  "description": "Agentics monorepo for workflow orchestration, refinement, and optimization.",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "cli": "npm run -w @agentics/cli cli --"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2",
+    "tsx": "^4.19.4"
+  }
+}

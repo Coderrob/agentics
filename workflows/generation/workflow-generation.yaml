@@ -1,0 +1,12 @@
+name: workflow-generation
+category: generation
+description: Generate workflow scaffolds and metadata for GitHub Agentic Workflows compatibility.
+inputs:
+  request:
+    type: string
+outputs:
+  workflow_yaml:
+    type: string
+steps:
+  - name: scaffold
+    run: agentics refine run --workflow workflows/generation/workflow-generation.yaml --run-id local

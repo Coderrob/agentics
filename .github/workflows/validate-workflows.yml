@@ -1,0 +1,18 @@
+name: Validate Workflows
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate workflow schema shape
+        run: |
+          node -e "const fs=require('fs');const path=require('path');const dirs=['workflows/analysis','workflows/generation','workflows/refinement','workflows/evaluation'];for(const d of dirs){for(const f of fs.readdirSync(d)){if(!f.endsWith('.yaml')&&!f.endsWith('.yml'))continue;const c=fs.readFileSync(path.join(d,f),'utf8');for(const key of ['name:','category:','inputs:','outputs:','steps:']){if(!c.includes(key)){throw new Error(path.join(d,f)+' missing '+key)}}}}console.log('Workflow schema checks passed')"

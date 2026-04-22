@@ -1,0 +1,22 @@
+name: Refinement Process
+
+on:
+  workflow_dispatch:
+    inputs:
+      workflow_path:
+        description: Workflow to refine
+        required: true
+        type: string
+
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm ci
+      - name: Execute refinement plan
+        run: npm run cli -- refine run --workflow "${{ inputs.workflow_path }}" --run-id "${{ github.run_id }}"

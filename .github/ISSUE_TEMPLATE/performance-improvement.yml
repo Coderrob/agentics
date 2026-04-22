@@ -1,0 +1,17 @@
+name: Performance Improvement
+description: Track optimization opportunities for token/tool efficiency.
+title: "performance: "
+labels: [performance]
+body:
+  - type: textarea
+    id: benchmark
+    attributes:
+      label: Baseline and target metrics
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation plan
+    validations:
+      required: true
