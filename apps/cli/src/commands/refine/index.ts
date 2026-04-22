@@ -3,10 +3,11 @@ import { registerAnalyzeCommand } from './analyze.js';
 import { registerExtractCommand } from './extract.js';
 import { registerRunCommand } from './run.js';
 
-export function attachRefineCommand(program: Command): void {
+/** Attaches the `refine` command and all its subcommands to the root program. */
+export function attachRefineCommand(program: Readonly<Command>): void {
   const refine = new Command('refine').description('Workflow refinement commands');
-  registerRunCommand(refine);
   registerAnalyzeCommand(refine);
   registerExtractCommand(refine);
+  registerRunCommand(refine);
   program.addCommand(refine);
 }

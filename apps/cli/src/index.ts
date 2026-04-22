@@ -1,6 +1,9 @@
 import { Command } from 'commander';
 import { attachRefineCommand } from './commands/refine/index.js';
 
+/** Minimum argv length before explicit user arguments are present (node + script). */
+const CLI_ARG_OFFSET = 2;
+
 const program = new Command();
 
 program
@@ -10,7 +13,7 @@ program
 
 attachRefineCommand(program);
 
-if (process.argv.length > 2) {
+if (process.argv.length > CLI_ARG_OFFSET) {
   await program.parseAsync(process.argv);
 }
 

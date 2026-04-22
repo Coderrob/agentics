@@ -1,14 +1,21 @@
-import { Command } from 'commander';
 import { createArtifactPaths } from '@agentics/agentics';
+import { Command } from 'commander';
 
-export function registerExtractCommand(parent: Command): void {
+/** JSON indentation level for command output. */
+const JSON_INDENT = 2;
+
+/** Runs the extract action for the refine extract command. */
+function handleExtract(options: Readonly<{ dir: string; runId: string }>): void {
+  const paths = createArtifactPaths(options.runId, options.dir);
+  process.stdout.write(`${JSON.stringify(paths, null, JSON_INDENT)}\n`);
+}
+
+/** Registers the `refine extract` subcommand on the given parent command. */
+export function registerExtractCommand(parent: Readonly<Command>): void {
   parent
     .command('extract')
     .description('Show expected artifact file paths for a run')
     .requiredOption('-r, --run-id <id>', 'Workflow run ID')
     .option('-d, --dir <path>', 'Refinements directory', 'refinements')
-    .action((options: { runId: string; dir: string }) => {
-      const paths = createArtifactPaths(options.runId, options.dir);
-      process.stdout.write(`${JSON.stringify(paths, null, 2)}\n`);
-    });
+    .action(handleExtract);
 }
