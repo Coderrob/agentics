@@ -1,0 +1,15 @@
+{
+  "exitCode": 1,
+  "ignore": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/.turbo/**",
+    "**/coverage/**"
+  ],
+  "languages": ["typescript"],
+  "minLines": 10,
+  "minTokens": 100,
+  "path": ["."],
+  "reporters": ["console"],
+  "threshold": 1
+}

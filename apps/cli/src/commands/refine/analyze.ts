@@ -4,13 +4,19 @@ import { Command } from 'commander';
 /** JSON indentation level for command output. */
 const JSON_INDENT = 2;
 
-/** Runs the analyze action for the refine analyze command. */
+/**
+ * Runs the analyze action for the refine analyze command.
+ * @param options - Parsed command options containing the conversation text.
+ */
 function handleAnalyze(options: Readonly<{ conversation: string }>): void {
   const result = analyzeConversation(options.conversation);
   process.stdout.write(`${JSON.stringify(result, null, JSON_INDENT)}\n`);
 }
 
-/** Registers the `refine analyze` subcommand on the given parent command. */
+/**
+ * Registers the `refine analyze` subcommand on the given parent command.
+ * @param parent - The Commander.js parent command to attach to.
+ */
 export function registerAnalyzeCommand(parent: Readonly<Command>): void {
   parent
     .command('analyze')

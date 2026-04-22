@@ -5,12 +5,10 @@ import tsParser from '@typescript-eslint/parser';
 export default [
   {
     ignores: [
-      '**/*.config.{ts,js,mjs}',
       '**/dist/**',
       '**/node_modules/**',
       '**/coverage/**',
-      '**/.turbo/**',
-      'refinements/**'
+      '**/.turbo/**'
     ]
   },
   {
@@ -22,6 +20,10 @@ export default [
         project: './tsconfig.base.json',
         tsconfigRootDir: import.meta.dirname
       }
+    },
+    rules: {
+      ...zeroTolerance.configs.strict.rules,
+      'zero-tolerance/prefer-result-return': 'off'
     }
   },
   {

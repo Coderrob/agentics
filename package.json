@@ -11,10 +11,14 @@
   ],
   "scripts": {
     "build": "turbo run build",
+    "circular": "madge --circular --extensions ts apps/cli/src packages/agentics/src packages/ai/src packages/core/src packages/github/src",
+    "cli": "npm run -w @agentics/cli cli --",
+    "coverage": "turbo run coverage",
+    "jscpd": "jscpd",
+    "knip": "knip",
+    "lint": "eslint . --max-warnings 0",
     "test": "turbo run test",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "cli": "npm run -w @agentics/cli cli --"
+    "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
     "@coderrob/eslint-plugin-zero-tolerance": "^1.2.3",

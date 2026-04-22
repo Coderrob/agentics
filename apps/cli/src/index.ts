@@ -13,6 +13,7 @@ program
 
 attachRefineCommand(program);
 
+/* v8 ignore next 3 -- entry-point guard: cannot be exercised in unit tests */
 if (process.argv.length > CLI_ARG_OFFSET) {
   await program.parseAsync(process.argv);
 }

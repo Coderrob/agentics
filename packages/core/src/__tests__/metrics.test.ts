@@ -80,3 +80,14 @@ describe('core metrics', () => {
     expect(() => validateUsageMetrics({})).toThrow('Invalid usage metrics');
   });
 });
+
+describe('summarizeGoals edge cases', () => {
+  it('should return zero reduction when baseline is zero', () => {
+    const zero = { completionTokens: 0, executionMs: 0, promptTokens: 0, toolCalls: 0 };
+    const candidate = { completionTokens: 0, executionMs: 0, promptTokens: 0, toolCalls: 0 };
+    const result = summarizeGoals(zero, candidate);
+    expect(result.tokenReductionPct).toBe(0);
+    expect(result.toolCallReductionPct).toBe(0);
+    expect(result.executionTimeReductionPct).toBe(0);
+  });
+});

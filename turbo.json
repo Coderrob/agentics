@@ -5,15 +5,19 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "coverage": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"]
+    },
+    "lint": {
+      "outputs": []
+    },
     "test": {
       "dependsOn": ["build"],
       "outputs": []
     },
     "typecheck": {
       "dependsOn": ["^typecheck"],
-      "outputs": []
-    },
-    "lint": {
       "outputs": []
     }
   }
