@@ -32,6 +32,8 @@ export async function compileWorkflow(path: string): Promise<IExecResult> {
 
 /**
  * Builds the shell command string to compile a GH AW workflow file (for display only).
+ * This string is never passed to a shell executor; actual execution uses
+ * {@link compileWorkflow} which calls execFile with individual arguments.
  * @param path - Path to the workflow YAML file.
  * @returns The shell command string.
  */
@@ -70,6 +72,8 @@ export async function downloadArtifacts(runId: string, outputDir: string): Promi
 
 /**
  * Builds the shell command string to download run artifacts (for display only).
+ * This string is never passed to a shell executor; actual execution uses
+ * {@link downloadArtifacts} which calls execFile with individual arguments.
  * @param runId - The workflow run ID to download artifacts for.
  * @param outputDir - Local directory path for the downloaded artifacts.
  * @returns The shell command string.
@@ -122,6 +126,8 @@ export async function runWorkflow(path: string): Promise<IExecResult> {
 
 /**
  * Builds the shell command string to execute a GH AW workflow file (for display only).
+ * This string is never passed to a shell executor; actual execution uses
+ * {@link runWorkflow} which calls execFile with individual arguments.
  * @param path - Path to the workflow YAML file.
  * @returns The shell command string.
  */
