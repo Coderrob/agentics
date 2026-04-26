@@ -1,0 +1,11 @@
+site_name: Agentics
+site_description: Agentics monorepo documentation
+nav:
+  - Home: docs/index.md
+  - Architecture: docs/architecture.md
+  - Workflows: docs/workflows.md
+  - CLI: docs/cli.md
+  - Refinement: docs/refinement.md
+  - Philosophy: docs/philosophy.md
+theme:
+  name: mkdocs

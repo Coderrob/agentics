@@ -1,0 +1,17 @@
+name: Workflow Creation
+description: Request creation of a new agentic workflow.
+title: "workflow: "
+labels: [workflow]
+body:
+  - type: input
+    id: workflow_name
+    attributes:
+      label: Workflow name
+    validations:
+      required: true
+  - type: textarea
+    id: metadata
+    attributes:
+      label: Metadata, inputs, outputs, and step intent
+    validations:
+      required: true

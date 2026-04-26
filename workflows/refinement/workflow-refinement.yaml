@@ -1,0 +1,14 @@
+name: workflow-refinement
+category: refinement
+description: Refine workflows using artifact extraction and AI-based analysis.
+inputs:
+  conversation:
+    type: string
+outputs:
+  todo:
+    type: string
+steps:
+  - name: analyze
+    run: agentics refine analyze --conversation "${inputs.conversation}"
+  - name: extract
+    run: agentics refine extract --run-id local

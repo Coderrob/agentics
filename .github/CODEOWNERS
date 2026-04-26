@@ -1,0 +1,31 @@
+# CODEOWNERS
+# Each line maps a path pattern to one or more owners (GitHub usernames or teams).
+# The last matching pattern takes precedence.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything not matched below
+* @Coderrob
+
+# Core package — metrics, benchmarking, and type definitions
+/packages/core/ @Coderrob
+
+# GitHub integration package
+/packages/github/ @Coderrob
+
+# AI provider abstraction
+/packages/ai/ @Coderrob
+
+# Orchestration package
+/packages/agentics/ @Coderrob
+
+# CLI application
+/apps/cli/ @Coderrob
+
+# Workflow YAML files
+/workflows/ @Coderrob
+
+# Repository governance and configuration
+/.github/ @Coderrob
+/AGENTS.md @Coderrob
+/CONTRIBUTING.md @Coderrob
+/SECURITY.md @Coderrob

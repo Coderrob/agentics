@@ -1,0 +1,18 @@
+name: workflow-analysis
+category: analysis
+description: Analyze workflow traces for redundant reasoning and tool call inefficiencies.
+inputs:
+  workflow_path:
+    type: string
+  run_id:
+    type: string
+outputs:
+  optimization_findings:
+    type: object
+steps:
+  - name: compile
+    run: gh aw compile --workflow ${inputs.workflow_path}
+  - name: execute
+    run: gh aw run --workflow ${inputs.workflow_path}
+  - name: extract
+    run: gh run download ${inputs.run_id} -D refinements/${inputs.run_id}

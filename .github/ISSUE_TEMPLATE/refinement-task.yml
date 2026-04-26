@@ -1,0 +1,17 @@
+name: Refinement Task
+description: Request workflow refinement based on execution data.
+title: "refinement: "
+labels: [refinement]
+body:
+  - type: input
+    id: run_id
+    attributes:
+      label: Workflow run id
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Observed inefficiency or quality issue
+    validations:
+      required: true

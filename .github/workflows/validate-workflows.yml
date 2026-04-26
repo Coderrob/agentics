@@ -1,0 +1,35 @@
+# Copyright 2024 Robert Lindley
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Validate Workflows
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate workflow schema shape
+        run: |
+          node -e "const fs=require('fs');const path=require('path');const dirs=['workflows/analysis','workflows/generation','workflows/refinement','workflows/evaluation'];for(const d of dirs){for(const f of fs.readdirSync(d)){if(!f.endsWith('.yaml')&&!f.endsWith('.yml'))continue;const c=fs.readFileSync(path.join(d,f),'utf8');for(const key of ['name:','category:','inputs:','outputs:','steps:']){if(!c.includes(key)){throw new Error(path.join(d,f)+' missing '+key)}}}}console.log('Workflow schema checks passed')"
