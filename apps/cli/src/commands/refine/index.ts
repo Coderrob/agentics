@@ -17,20 +17,14 @@ import { registerAnalyzeCommand } from './analyze.js';
 import { registerBenchmarkCommand } from './benchmark.js';
 import { registerExtractCommand } from './extract.js';
 import { registerRunCommand } from './run.js';
-
-/** Runtime type accepted by refine command registrations. */
-interface IRefineCommandRuntime {
-  readonly argv: readonly string[];
-  writeStderr(output: string): void;
-  writeStdout(output: string): void;
-}
+import type { ICommandRuntime } from './runtime.js';
 
 /**
  * Attaches the `refine` command and all its subcommands to the root program.
  * @param program - The root Commander.js program instance.
  * @param runtime - Runtime adapter used for command output.
  */
-export function attachRefineCommand(program: Readonly<Command>, runtime: Readonly<IRefineCommandRuntime>): void {
+export function attachRefineCommand(program: Readonly<Command>, runtime: Readonly<ICommandRuntime>): void {
   const refine = new Command('refine').description('Workflow refinement commands');
   registerAnalyzeCommand(refine, runtime);
   registerBenchmarkCommand(refine, runtime);

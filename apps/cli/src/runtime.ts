@@ -55,8 +55,8 @@ class NodeCommandRuntime implements ICommandRuntime {
 /**
  * Creates a runtime adapter from explicit process arguments and output writer.
  * @param argv - Command-line arguments to expose to the CLI.
- * @param writeStderr - Function used to write standard error.
  * @param writeStdout - Function used to write standard output.
+ * @param writeStderr - Function used to write standard error.
  * @returns A command runtime adapter.
  */
 export function createCommandRuntime(

@@ -36,16 +36,17 @@ describe('workflow commands', () => {
     executeAgenticWorkflowCommandMock.mockReset();
   });
 
-  it('should compile markdown files in workflow directories', async () => {
+  it('should compile yaml files in workflow directories', async () => {
     executeAgenticWorkflowCommandMock
       .mockResolvedValueOnce({ stderr: '', stdout: 'compiled\n' })
       .mockResolvedValueOnce({ stderr: '', stdout: 'compiled\n' });
     const directory = await mkdtemp(join(tmpdir(), 'agentics-workflows-'));
     const nestedDirectory = join(directory, 'nested');
     await mkdir(nestedDirectory);
-    await writeFile(join(directory, 'workflow-a.md'), '# Workflow A\n');
+    await writeFile(join(directory, 'notes.md'), '# Not a workflow\n');
+    await writeFile(join(directory, 'workflow-a.yaml'), 'name: Workflow A\n');
     await writeFile(join(directory, 'workflow-a.lock.yml'), 'name: ignored\n');
-    await writeFile(join(nestedDirectory, 'workflow-b.md'), '# Workflow B\n');
+    await writeFile(join(nestedDirectory, 'workflow-b.yml'), 'name: Workflow B\n');
     const root = new Command();
     const runtime = createCommandRuntime(
       [],
@@ -63,12 +64,12 @@ describe('workflow commands', () => {
     expect(executeAgenticWorkflowCommandMock).toHaveBeenNthCalledWith(1, [
       'compile',
       '--workflow',
-      join(nestedDirectory, 'workflow-b.md'),
+      join(nestedDirectory, 'workflow-b.yml'),
     ]);
     expect(executeAgenticWorkflowCommandMock).toHaveBeenNthCalledWith(2, [
       'compile',
       '--workflow',
-      join(directory, 'workflow-a.md'),
+      join(directory, 'workflow-a.yaml'),
     ]);
     expect(capturedOutput).toBe('compiled\ncompiled\n');
     expect(capturedError).toBe('');
@@ -77,7 +78,7 @@ describe('workflow commands', () => {
   it('should forward compile stderr from the workflow compiler', async () => {
     executeAgenticWorkflowCommandMock.mockResolvedValueOnce({ stderr: 'warning\n', stdout: '' });
     const directory = await mkdtemp(join(tmpdir(), 'agentics-workflows-warning-'));
-    await writeFile(join(directory, 'workflow.md'), '# Workflow\n');
+    await writeFile(join(directory, 'workflow.yaml'), 'name: Workflow\n');
     const root = new Command();
     const runtime = createCommandRuntime(
       [],

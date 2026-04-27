@@ -19,7 +19,7 @@ import { executeAgenticWorkflowCommand } from '@agentics/github';
 import { Command } from 'commander';
 import type { ICommandRuntime } from '../runtime.js';
 
-/** Default directory containing source workflow markdown files. */
+/** Default directory containing source workflow files. */
 const DEFAULT_WORKFLOWS_DIRECTORY = 'workflows';
 
 /** Options for the workflow compile command. */
@@ -28,9 +28,9 @@ interface IWorkflowCompileOptions {
 }
 
 /**
- * Creates a reducer that compiles markdown workflows sequentially.
+ * Creates a reducer that compiles workflows sequentially.
  * @param runtime - Runtime adapter used for command output.
- * @returns A markdown workflow compile reducer.
+ * @returns A workflow compile reducer.
  */
 function compileNextWorkflow(
   runtime: Readonly<ICommandRuntime>,
@@ -38,7 +38,7 @@ function compileNextWorkflow(
   /**
    * Runs the next compile step after the previous one completes.
    * @param previous - Previous compile promise.
-   * @param workflowPath - Markdown workflow path to compile.
+   * @param workflowPath - Workflow path to compile.
    */
   async function compileNext(previous: Readonly<Promise<void>>, workflowPath: string): Promise<void> {
     await previous;
@@ -49,21 +49,21 @@ function compileNextWorkflow(
 }
 
 /**
- * Compiles every markdown workflow under the configured workflow directory.
+ * Compiles every workflow source file under the configured workflow directory.
  * @param options - Compile command options.
  * @param runtime - Runtime adapter used for command output.
  */
-async function compileWorkflowMarkdownFiles(
+async function compileWorkflowSourceFiles(
   options: Readonly<IWorkflowCompileOptions>,
   runtime: Readonly<ICommandRuntime>,
 ): Promise<void> {
   const directory = options.directory ?? DEFAULT_WORKFLOWS_DIRECTORY;
-  const paths = await findMarkdownFiles(directory);
+  const paths = await findWorkflowSourceFiles(directory);
   await paths.reduce<Promise<void>>(compileNextWorkflow(runtime), Promise.resolve());
 }
 
 /**
- * Creates the Commander action for compiling workflow markdown files.
+ * Creates the Commander action for compiling workflow source files.
  * @param runtime - Runtime adapter used for command output.
  * @returns A configured Commander action handler.
  */
@@ -71,11 +71,11 @@ function createCompileWorkflowsAction(
   runtime: Readonly<ICommandRuntime>,
 ): (options: Readonly<IWorkflowCompileOptions>) => Promise<void> {
   /**
-   * Executes the workflow markdown compile command action.
+   * Executes the workflow source compile command action.
    * @param options - Compile command options.
    */
   async function compileWorkflowsAction(options: Readonly<IWorkflowCompileOptions>): Promise<void> {
-    await compileWorkflowMarkdownFiles(options, runtime);
+    await compileWorkflowSourceFiles(options, runtime);
   }
 
   return compileWorkflowsAction;
@@ -99,32 +99,32 @@ async function executeWorkflowCompile(workflowPath: string, runtime: Readonly<IC
 }
 
 /**
- * Finds markdown workflow files under a directory.
+ * Finds workflow source files under a directory.
  * @param directory - Directory to scan recursively.
- * @returns Sorted markdown file paths.
+ * @returns Sorted workflow source file paths.
  */
-async function findMarkdownFiles(directory: string): Promise<readonly string[]> {
+async function findWorkflowSourceFiles(directory: string): Promise<readonly string[]> {
   const entries = await readdir(directory, { withFileTypes: true });
   /**
-   * Finds markdown paths for one directory entry.
+   * Finds workflow source paths for one directory entry.
    * @param entry - Directory entry to inspect.
-   * @returns Markdown file paths found for the entry.
+   * @returns Workflow source file paths found for the entry.
    */
-  async function findMarkdownPathsForEntry(entry: Readonly<Dirent>): Promise<readonly string[]> {
+  async function findWorkflowSourcePathsForEntry(entry: Readonly<Dirent>): Promise<readonly string[]> {
     const childPath = join(directory, entry.name);
 
     if (entry.isDirectory()) {
-      return findMarkdownFiles(childPath);
+      return findWorkflowSourceFiles(childPath);
     }
 
-    if (entry.isFile() && entry.name.endsWith('.md')) {
+    if (entry.isFile() && isWorkflowSourceFile(entry.name)) {
       return [childPath];
     }
 
     return [];
   }
 
-  const nestedPaths = await Promise.all(entries.map(findMarkdownPathsForEntry));
+  const nestedPaths = await Promise.all(entries.map(findWorkflowSourcePathsForEntry));
 
   return nestedPaths.flat().reduce<readonly string[]>(insertSortedPath, []);
 }
@@ -161,6 +161,16 @@ function insertSortedPath(paths: readonly string[], path: string): readonly stri
 }
 
 /**
+ * Checks whether a file name is a source workflow file.
+ * @param fileName - File name to inspect.
+ * @returns True when the file is a YAML workflow source and not a generated lock file.
+ */
+function isWorkflowSourceFile(fileName: string): boolean {
+  const isYamlFile = fileName.endsWith('.yaml') || fileName.endsWith('.yml');
+  return isYamlFile && !fileName.endsWith('.lock.yml');
+}
+
+/**
  * Registers workflow utility commands on the given program.
  * @param program - The root Commander.js program instance.
  * @param runtime - Runtime adapter used for command output.
@@ -170,7 +180,7 @@ export function registerWorkflowCommands(program: Readonly<Command>, runtime: Re
 
   workflows
     .command('compile')
-    .description('Compile markdown workflows through the GitHub Agentic Workflows extension')
-    .option('-d, --directory <path>', 'Directory containing markdown workflow files', DEFAULT_WORKFLOWS_DIRECTORY)
+    .description('Compile YAML workflows through the GitHub Agentic Workflows extension')
+    .option('-d, --directory <path>', 'Directory containing YAML workflow files', DEFAULT_WORKFLOWS_DIRECTORY)
     .action(createCompileWorkflowsAction(runtime));
 }

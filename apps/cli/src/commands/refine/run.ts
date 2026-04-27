@@ -54,7 +54,7 @@ function handleRun(options: Readonly<{ runId: string; workflow: string }>, runti
 export function registerRunCommand(parent: Readonly<Command>, runtime: Readonly<ICommandRuntime>): void {
   parent
     .command('run')
-    .description('Compile and execute a workflow, then create a refinement plan')
+    .description('Create a refinement plan for a workflow run')
     .requiredOption('-w, --workflow <path>', 'Workflow YAML path')
     .requiredOption('-r, --run-id <id>', 'Workflow run ID')
     .action(createRunAction(runtime));

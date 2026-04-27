@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Command } from 'commander';
 import { registerAgenticWorkflowProxyCommand } from './commands/aw.js';
 import { attachRefineCommand } from './commands/refine/index.js';
 import { registerWorkflowCommands } from './commands/workflows.js';
 import type { ICommandRuntime } from './runtime.js';
 import { createNodeCommandRuntime } from './runtime.js';
-
-/** Minimum argv length before explicit user arguments are present (node + script). */
-const CLI_ARG_OFFSET = 2;
 
 const runtime = createNodeCommandRuntime();
 
@@ -71,8 +70,24 @@ export function createCliProgram(commandRuntime: Readonly<ICommandRuntime>): Com
 
 const program = createCliProgram(runtime);
 
+/**
+ * Checks whether the current module is the invoked CLI entrypoint.
+ * @param moduleUrl - URL for the current ES module.
+ * @param argv - Runtime command-line arguments.
+ * @returns True when the current module path matches the invoked script path.
+ */
+function isDirectExecution(moduleUrl: string, argv: readonly string[]): boolean {
+  const scriptPath = argv[1];
+
+  if (!scriptPath) {
+    return false;
+  }
+
+  return fileURLToPath(moduleUrl) === fileURLToPath(pathToFileURL(resolve(scriptPath)));
+}
+
 /* v8 ignore next 3 -- entry-point guard: cannot be exercised in unit tests */
-if (runtime.argv.length > CLI_ARG_OFFSET) {
+if (isDirectExecution(import.meta.url, runtime.argv)) {
   await program.parseAsync([...runtime.argv]);
 }
 
