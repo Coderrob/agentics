@@ -1,6 +1,7 @@
 # Build outputs
 dist/
 coverage/
+site/
 
 # Dependencies
 node_modules/
@@ -11,6 +12,8 @@ node_modules/
 
 # Lock files
 package-lock.json
+*.lock.yml
+**/*.lock.yml
 
 # Generated refinement outputs
 refinements/

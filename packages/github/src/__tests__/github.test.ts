@@ -1,4 +1,4 @@
-// Copyright 2024 Robert Lindley
+// Copyright 2026 Robert Lindley
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import {
   downloadArtifacts,
   downloadArtifactsCommand,
   downloadArtifactsWithFallback,
+  executeAgenticWorkflowCommand,
   runWorkflow,
   runWorkflowCommand,
 } from '../index.js';
@@ -59,6 +60,19 @@ describe('github async wrappers', () => {
       },
     );
     const result = await compileWorkflow('.github/workflows/ci.yml');
+    expect(result.stdout).toBe(MOCK_STDOUT);
+    expect(result.stderr).toBe(MOCK_STDERR);
+  });
+
+  it('should execute agentic workflow extension command', async () => {
+    execFileMock.mockClear();
+    execFileMock.mockImplementationOnce(
+      (_cmd: string, _args: readonly string[], cb: (e: null, r: { stdout: string; stderr: string }) => void) => {
+        cb(null, { stdout: MOCK_STDOUT, stderr: MOCK_STDERR });
+      },
+    );
+    const result = await executeAgenticWorkflowCommand(['list', '--json']);
+    expect(execFileMock).toHaveBeenNthCalledWith(1, 'gh', ['aw', 'list', '--json'], expect.any(Function));
     expect(result.stdout).toBe(MOCK_STDOUT);
     expect(result.stderr).toBe(MOCK_STDERR);
   });

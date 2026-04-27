@@ -1,5 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreBinaries": ["gh"],
   "workspaces": {
     ".": {
       "entry": ["vitest.package.config.ts"],

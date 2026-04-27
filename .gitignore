@@ -144,3 +144,6 @@ refinements/*
 
 # Turborepo cache
 .turbo
+
+# Mkdocs Artifact
+site/

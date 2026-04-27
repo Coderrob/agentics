@@ -1,4 +1,4 @@
-// Copyright 2024 Robert Lindley
+// Copyright 2026 Robert Lindley
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,27 +14,47 @@
 
 import { analyzeConversation } from '@agentics/agentics';
 import { Command } from 'commander';
+import type { ICommandRuntime } from '../../runtime.js';
+import { writeJson } from '../../runtime.js';
 
-/** JSON indentation level for command output. */
-const JSON_INDENT = 2;
+/**
+ * Creates the Commander action for the analyze command.
+ * @param runtime - Runtime adapter used for writing command output.
+ * @returns A configured Commander action handler.
+ */
+function createAnalyzeAction(
+  runtime: Readonly<ICommandRuntime>,
+): (options: Readonly<{ conversation: string }>) => void {
+  /**
+   * Executes the analyze command action.
+   * @param options - Parsed command options containing the conversation text.
+   */
+  function analyzeAction(options: Readonly<{ conversation: string }>): void {
+    handleAnalyze(options, runtime);
+  }
+
+  return analyzeAction;
+}
 
 /**
  * Runs the analyze action for the refine analyze command.
  * @param options - Parsed command options containing the conversation text.
+ * @param runtime - Runtime adapter used for writing command output.
  */
-function handleAnalyze(options: Readonly<{ conversation: string }>): void {
+function handleAnalyze(options: Readonly<{ conversation: string }>, runtime: Readonly<ICommandRuntime>): void {
   const result = analyzeConversation(options.conversation);
-  process.stdout.write(`${JSON.stringify(result, null, JSON_INDENT)}\n`);
+  writeJson(runtime, result);
 }
 
 /**
  * Registers the `refine analyze` subcommand on the given parent command.
  * @param parent - The Commander.js parent command to attach to.
+ * @param runtime - Runtime adapter used for command output.
  */
-export function registerAnalyzeCommand(parent: Readonly<Command>): void {
+export function registerAnalyzeCommand(parent: Readonly<Command>, runtime: Readonly<ICommandRuntime>): void {
   parent
     .command('analyze')
     .description('Analyze a conversation transcript for optimization opportunities')
     .requiredOption('-c, --conversation <text>', 'Conversation content to analyze')
-    .action(handleAnalyze);
+    .action(createAnalyzeAction(runtime));
 }
