@@ -1,4 +1,4 @@
-// Copyright 2024 Robert Lindley
+// Copyright 2026 Robert Lindley
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,28 +14,48 @@
 
 import { createArtifactPaths } from '@agentics/agentics';
 import { Command } from 'commander';
+import type { ICommandRuntime } from '../../runtime.js';
+import { writeJson } from '../../runtime.js';
 
-/** JSON indentation level for command output. */
-const JSON_INDENT = 2;
+/**
+ * Creates the Commander action for the extract command.
+ * @param runtime - Runtime adapter used for writing command output.
+ * @returns A configured Commander action handler.
+ */
+function createExtractAction(
+  runtime: Readonly<ICommandRuntime>,
+): (options: Readonly<{ dir: string; runId: string }>) => void {
+  /**
+   * Executes the extract command action.
+   * @param options - Parsed command options containing the run ID and directory.
+   */
+  function extractAction(options: Readonly<{ dir: string; runId: string }>): void {
+    handleExtract(options, runtime);
+  }
+
+  return extractAction;
+}
 
 /**
  * Runs the extract action for the refine extract command.
  * @param options - Parsed command options containing the run ID and directory.
+ * @param runtime - Runtime adapter used for writing command output.
  */
-function handleExtract(options: Readonly<{ dir: string; runId: string }>): void {
+function handleExtract(options: Readonly<{ dir: string; runId: string }>, runtime: Readonly<ICommandRuntime>): void {
   const paths = createArtifactPaths(options.runId, options.dir);
-  process.stdout.write(`${JSON.stringify(paths, null, JSON_INDENT)}\n`);
+  writeJson(runtime, paths);
 }
 
 /**
  * Registers the `refine extract` subcommand on the given parent command.
  * @param parent - The Commander.js parent command to attach to.
+ * @param runtime - Runtime adapter used for command output.
  */
-export function registerExtractCommand(parent: Readonly<Command>): void {
+export function registerExtractCommand(parent: Readonly<Command>, runtime: Readonly<ICommandRuntime>): void {
   parent
     .command('extract')
     .description('Show expected artifact file paths for a run')
     .requiredOption('-r, --run-id <id>', 'Workflow run ID')
     .option('-d, --dir <path>', 'Refinements directory', 'refinements')
-    .action(handleExtract);
+    .action(createExtractAction(runtime));
 }

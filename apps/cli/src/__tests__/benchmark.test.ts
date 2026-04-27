@@ -1,4 +1,4 @@
-// Copyright 2024 Robert Lindley
+// Copyright 2026 Robert Lindley
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,23 +16,15 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Command } from 'commander';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { registerBenchmarkCommand } from '../commands/refine/benchmark.js';
+import { createCommandRuntime } from '../runtime.js';
 
 describe('benchmark command', () => {
   let capturedOutput: string;
-  let writeSpy: { mockRestore: () => void };
 
   beforeEach(() => {
     capturedOutput = '';
-    writeSpy = vi.spyOn(process.stdout, 'write').mockImplementationOnce((chunk: unknown) => {
-      capturedOutput += String(chunk);
-      return true;
-    });
-  });
-
-  afterEach(() => {
-    writeSpy.mockRestore();
   });
 
   it('should produce a benchmark report from two usage files', async () => {
@@ -52,7 +44,10 @@ describe('benchmark command', () => {
       );
 
       const root = new Command();
-      registerBenchmarkCommand(root);
+      const runtime = createCommandRuntime([], (output: string) => {
+        capturedOutput += output;
+      });
+      registerBenchmarkCommand(root, runtime);
       await root.parseAsync(['node', 'test', 'benchmark', '-b', baselinePath, '-c', candidatePath]);
 
       const report = JSON.parse(capturedOutput);
@@ -74,8 +69,11 @@ describe('benchmark command', () => {
       await writeFile(badPath, JSON.stringify({ notMetrics: true }));
 
       const root = new Command();
+      const runtime = createCommandRuntime([], (output: string) => {
+        capturedOutput += output;
+      });
       root.exitOverride();
-      registerBenchmarkCommand(root);
+      registerBenchmarkCommand(root, runtime);
 
       await expect(root.parseAsync(['node', 'test', 'benchmark', '-b', badPath, '-c', badPath])).rejects.toThrow();
     } finally {

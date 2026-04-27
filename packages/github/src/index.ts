@@ -1,4 +1,4 @@
-// Copyright 2024 Robert Lindley
+// Copyright 2026 Robert Lindley
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -125,6 +125,17 @@ export async function downloadArtifactsWithFallback(
     await delay(retryDelayMs);
     return downloadArtifacts(runId, outputDir);
   }
+}
+
+/**
+ * Executes a GitHub CLI Agentic Workflows extension command.
+ * Arguments are passed directly to the process to prevent shell injection.
+ * @param args - Arguments to append after `gh aw`.
+ * @returns Captured stdout and stderr from the proxied command.
+ */
+export async function executeAgenticWorkflowCommand(args: readonly string[]): Promise<IExecResult> {
+  const result = await execFileAsync('gh', ['aw', ...args]);
+  return { stderr: result.stderr, stdout: result.stdout };
 }
 
 /**

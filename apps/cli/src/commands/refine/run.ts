@@ -1,4 +1,4 @@
-// Copyright 2024 Robert Lindley
+// Copyright 2026 Robert Lindley
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,28 +14,48 @@
 
 import { createRefinementPlan } from '@agentics/agentics';
 import { Command } from 'commander';
+import type { ICommandRuntime } from '../../runtime.js';
+import { writeJson } from '../../runtime.js';
 
-/** JSON indentation level for command output. */
-const JSON_INDENT = 2;
+/**
+ * Creates the Commander action for the run command.
+ * @param runtime - Runtime adapter used for writing command output.
+ * @returns A configured Commander action handler.
+ */
+function createRunAction(
+  runtime: Readonly<ICommandRuntime>,
+): (options: Readonly<{ runId: string; workflow: string }>) => void {
+  /**
+   * Executes the run command action.
+   * @param options - Parsed command options containing the workflow path and run ID.
+   */
+  function runAction(options: Readonly<{ runId: string; workflow: string }>): void {
+    handleRun(options, runtime);
+  }
+
+  return runAction;
+}
 
 /**
  * Runs the run action for the refine run command.
  * @param options - Parsed command options containing the workflow path and run ID.
+ * @param runtime - Runtime adapter used for writing command output.
  */
-function handleRun(options: Readonly<{ runId: string; workflow: string }>): void {
+function handleRun(options: Readonly<{ runId: string; workflow: string }>, runtime: Readonly<ICommandRuntime>): void {
   const plan = createRefinementPlan(options.workflow, options.runId);
-  process.stdout.write(`${JSON.stringify(plan, null, JSON_INDENT)}\n`);
+  writeJson(runtime, plan);
 }
 
 /**
  * Registers the `refine run` subcommand on the given parent command.
  * @param parent - The Commander.js parent command to attach to.
+ * @param runtime - Runtime adapter used for command output.
  */
-export function registerRunCommand(parent: Readonly<Command>): void {
+export function registerRunCommand(parent: Readonly<Command>, runtime: Readonly<ICommandRuntime>): void {
   parent
     .command('run')
     .description('Compile and execute a workflow, then create a refinement plan')
     .requiredOption('-w, --workflow <path>', 'Workflow YAML path')
     .requiredOption('-r, --run-id <id>', 'Workflow run ID')
-    .action(handleRun);
+    .action(createRunAction(runtime));
 }

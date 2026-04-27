@@ -1,4 +1,4 @@
-// Copyright 2024 Robert Lindley
+// Copyright 2026 Robert Lindley
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,22 +16,44 @@ import { readFileSync } from 'node:fs';
 import type { IBenchmarkReport, IUsageMetrics } from '@agentics/core';
 import { benchmarkUsage, validateUsageMetrics } from '@agentics/core';
 import { Command } from 'commander';
-
-/** JSON indentation level for command output. */
-const JSON_INDENT = 2;
+import type { ICommandRuntime } from '../../runtime.js';
+import { writeJson } from '../../runtime.js';
 
 /** File encoding used when reading usage.json files. */
 const FILE_ENCODING = 'utf8';
 
 /**
+ * Creates the Commander action for the benchmark command.
+ * @param runtime - Runtime adapter used for writing command output.
+ * @returns A configured Commander action handler.
+ */
+function createBenchmarkAction(
+  runtime: Readonly<ICommandRuntime>,
+): (options: Readonly<{ baseline: string; candidate: string }>) => void {
+  /**
+   * Executes the benchmark command action.
+   * @param options - Parsed command options containing baseline and candidate file paths.
+   */
+  function benchmarkAction(options: Readonly<{ baseline: string; candidate: string }>): void {
+    handleBenchmark(options, runtime);
+  }
+
+  return benchmarkAction;
+}
+
+/**
  * Runs the benchmark action comparing a baseline and candidate usage file.
  * @param options - Parsed command options containing baseline and candidate file paths.
+ * @param runtime - Runtime adapter used for writing command output.
  */
-function handleBenchmark(options: Readonly<{ baseline: string; candidate: string }>): void {
+function handleBenchmark(
+  options: Readonly<{ baseline: string; candidate: string }>,
+  runtime: Readonly<ICommandRuntime>,
+): void {
   const baseline = readUsageFile(options.baseline);
   const candidate = readUsageFile(options.candidate);
   const report: IBenchmarkReport = benchmarkUsage(baseline, candidate);
-  process.stdout.write(`${JSON.stringify(report, null, JSON_INDENT)}\n`);
+  writeJson(runtime, report);
 }
 
 /**
@@ -47,12 +69,13 @@ function readUsageFile(filePath: string): IUsageMetrics {
 /**
  * Registers the `refine benchmark` subcommand on the given parent command.
  * @param parent - The Commander.js parent command to attach to.
+ * @param runtime - Runtime adapter used for command output.
  */
-export function registerBenchmarkCommand(parent: Readonly<Command>): void {
+export function registerBenchmarkCommand(parent: Readonly<Command>, runtime: Readonly<ICommandRuntime>): void {
   parent
     .command('benchmark')
     .description('Compare two usage.json files and report optimization improvements')
     .requiredOption('-b, --baseline <path>', 'Path to the baseline usage.json file')
     .requiredOption('-c, --candidate <path>', 'Path to the candidate usage.json file')
-    .action(handleBenchmark);
+    .action(createBenchmarkAction(runtime));
 }

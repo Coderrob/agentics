@@ -1,4 +1,4 @@
-// Copyright 2024 Robert Lindley
+// Copyright 2026 Robert Lindley
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+import { isNumber, isObject } from '@coderrob/typescript-type-guards';
 
 /** Constant for percentage calculation base. */
 const PERCENTAGE_BASE = 100;
@@ -62,15 +64,6 @@ export function benchmarkUsage(
 }
 
 /**
- * Narrows an unknown value to a string-keyed record for property inspection.
- * @param value - The value to test.
- * @returns True if value is a non-null object.
- */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-/**
  * Computes percentage reductions across tokens, tool calls, and execution time.
  * @param before - Baseline usage metrics.
  * @param after - Candidate usage metrics.
@@ -112,18 +105,13 @@ export function validateUsageMetrics(data: unknown): IUsageMetrics {
   const errorMessage =
     'Invalid usage metrics: expected numeric fields promptTokens, completionTokens, toolCalls, executionMs';
 
-  if (!isRecord(data)) {
+  if (!isObject(data)) {
     throw new Error(errorMessage);
   }
 
   const { promptTokens, completionTokens, toolCalls, executionMs } = data;
 
-  if (
-    typeof promptTokens !== 'number' ||
-    typeof completionTokens !== 'number' ||
-    typeof toolCalls !== 'number' ||
-    typeof executionMs !== 'number'
-  ) {
+  if (!isNumber(promptTokens) || !isNumber(completionTokens) || !isNumber(toolCalls) || !isNumber(executionMs)) {
     throw new Error(errorMessage);
   }
 

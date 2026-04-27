@@ -1,4 +1,4 @@
-// Copyright 2024 Robert Lindley
+// Copyright 2026 Robert Lindley
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,14 @@
 // limitations under the License.
 
 import { describe, expect, it } from 'vitest';
-import { program } from '../index.js';
+import { createCliProgram, program } from '../index.js';
+import { createCommandRuntime } from '../runtime.js';
 
 describe('cli', () => {
   it('should register refine command', () => {
     const names = program.commands.map((command) => command.name());
     expect(names).toContain('refine');
+    expect(names).toContain('workflows');
   });
 
   it('should register all refine subcommands', () => {
@@ -28,5 +30,43 @@ describe('cli', () => {
     expect(subNames).toContain('benchmark');
     expect(subNames).toContain('extract');
     expect(subNames).toContain('run');
+  });
+
+  it('should write Commander help through the command runtime', () => {
+    let capturedOutput = '';
+    let capturedError = '';
+    const runtime = createCommandRuntime(
+      ['node', 'agentics'],
+      (output: string) => {
+        capturedOutput += output;
+      },
+      (output: string) => {
+        capturedError += output;
+      },
+    );
+    const command = createCliProgram(runtime);
+
+    command.outputHelp();
+
+    expect(capturedOutput).toContain('Usage: agentics');
+    expect(capturedOutput).toContain('Workflow refinement commands');
+    expect(capturedError).toBe('');
+  });
+
+  it('should write Commander errors through the command runtime', async () => {
+    let capturedError = '';
+    const runtime = createCommandRuntime(
+      ['node', 'agentics'],
+      () => undefined,
+      (output: string) => {
+        capturedError += output;
+      },
+    );
+    const command = createCliProgram(runtime);
+    command.exitOverride();
+
+    await expect(command.parseAsync(['node', 'agentics', 'missing-command'])).rejects.toThrow();
+
+    expect(capturedError).toContain("error: unknown command 'missing-command'");
   });
 });

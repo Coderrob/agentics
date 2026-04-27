@@ -1,4 +1,4 @@
-// Copyright 2024 Robert Lindley
+// Copyright 2026 Robert Lindley
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,15 +18,23 @@ import { registerBenchmarkCommand } from './benchmark.js';
 import { registerExtractCommand } from './extract.js';
 import { registerRunCommand } from './run.js';
 
+/** Runtime type accepted by refine command registrations. */
+interface IRefineCommandRuntime {
+  readonly argv: readonly string[];
+  writeStderr(output: string): void;
+  writeStdout(output: string): void;
+}
+
 /**
  * Attaches the `refine` command and all its subcommands to the root program.
  * @param program - The root Commander.js program instance.
+ * @param runtime - Runtime adapter used for command output.
  */
-export function attachRefineCommand(program: Readonly<Command>): void {
+export function attachRefineCommand(program: Readonly<Command>, runtime: Readonly<IRefineCommandRuntime>): void {
   const refine = new Command('refine').description('Workflow refinement commands');
-  registerAnalyzeCommand(refine);
-  registerBenchmarkCommand(refine);
-  registerExtractCommand(refine);
-  registerRunCommand(refine);
+  registerAnalyzeCommand(refine, runtime);
+  registerBenchmarkCommand(refine, runtime);
+  registerExtractCommand(refine, runtime);
+  registerRunCommand(refine, runtime);
   program.addCommand(refine);
 }
