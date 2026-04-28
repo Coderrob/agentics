@@ -35,7 +35,7 @@
     "knip": "knip",
     "lint": "npm run lint:es && npm run lint:md",
     "lint:es": "eslint . --max-warnings 0",
-    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#**/*.lock.yml\"",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#tendril\" \"#tendril/**\" \"#**/*.lock.yml\"",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "workflows:compile": "npm run cli -- workflows compile --directory ../../workflows"

@@ -19,6 +19,7 @@ import { createCommandRuntime } from '../runtime.js';
 describe('cli', () => {
   it('should register refine command', () => {
     const names = program.commands.map((command) => command.name());
+    expect(names).toContain('context');
     expect(names).toContain('refine');
     expect(names).toContain('workflows');
   });

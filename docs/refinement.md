@@ -7,7 +7,7 @@ unnecessary tool calls, and execution time while preserving successful outcomes.
 
 Start with these three things:
 
-- A workflow YAML file, such as `workflows/analysis/workflow-analysis.yaml`.
+- A reusable GitHub Agentic Workflow markdown file, such as `workflows/workflow-factory.md`.
 - A run ID from the system that executed the workflow.
 - Artifacts for the run: `prompt.txt`, `conversation.txt`, and `usage.json`.
 
@@ -26,7 +26,7 @@ refinements/
 Generate the plan for the workflow and run ID.
 
 ```bash
-npm run cli -- refine run --workflow workflows/analysis/workflow-analysis.yaml --run-id 123
+npm run cli -- refine run --workflow workflows/workflow-factory.md --run-id 123
 ```
 
 Use the JSON output as the checklist for the run. It includes the GitHub commands and the artifact
@@ -37,8 +37,8 @@ paths expected by Agentics.
 If you are using GitHub Agentic Workflows tooling, run the emitted commands manually or from CI.
 
 ```bash
-gh aw compile --workflow workflows/analysis/workflow-analysis.yaml
-gh aw run --workflow workflows/analysis/workflow-analysis.yaml
+gh aw compile --workflow workflows/workflow-factory.md
+gh aw run --workflow workflows/workflow-factory.md
 ```
 
 Capture the resulting run ID. If the run ID changes after execution, regenerate the Agentics plan
@@ -111,6 +111,19 @@ Read the report in this order:
 2. `toolCallDelta`: positive values mean the candidate made fewer tool calls.
 3. `improvements.executionTimeReductionPct`: positive values mean the candidate ran faster.
 4. Raw baseline and candidate fields: use these to sanity-check outliers.
+
+## Evaluate Context Cache Changes
+
+Use the same baseline/candidate process to tune the portable context cache workflow.
+
+For the baseline run, execute the target task without cached summaries or claims. For the candidate
+run, preload root-to-target summaries and live claims from `.agentics/context/`. Then compare the
+two `usage.json` files with `refine benchmark`.
+
+The repository also includes `.github/workflows/context-cache-effectiveness.yml` as a ready-made
+deterministic evaluation workflow. It validates the context cache and compares cold versus cached
+usage so cache changes can go through the same self-improvement process as prompt or workflow
+changes.
 
 ## Step 7: Decide Whether To Keep The Change
 

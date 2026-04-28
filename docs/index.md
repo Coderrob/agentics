@@ -12,7 +12,7 @@ analyze conversation traces, and compare optimization attempts with measurable u
 - Locate the expected prompt, conversation, and usage artifact paths for a run.
 - Analyze a conversation transcript for repeated reasoning and excessive tool invocation language.
 - Compare baseline and candidate `usage.json` files.
-- Keep workflow definitions organized by analysis, generation, refinement, and evaluation stage.
+- Keep reusable GitHub Agentic Workflow markdown separate from this repository's GitHub Actions.
 
 ## Install Dependencies
 
@@ -39,7 +39,7 @@ npm run cli -- refine --help
 Generate a refinement plan for a known workflow path and run ID.
 
 ```bash
-npm run cli -- refine run --workflow workflows/analysis/workflow-analysis.yaml --run-id 123
+npm run cli -- refine run --workflow workflows/workflow-factory.md --run-id 123
 ```
 
 The command prints JSON. It does not execute the GitHub workflow itself. Use the emitted commands
@@ -63,7 +63,9 @@ npm run format:check
 ## Documentation Map
 
 - [CLI](cli.md): command usage, inputs, outputs, and examples.
+- [Context Cache](context-cache.md): deterministic context-cache GitHub Actions and helper CLI.
 - [Refinement](refinement.md): end-to-end how-to guidance for improving a workflow.
-- [Workflows](workflows.md): how to read and author workflow YAML files.
+- [Workflows](workflows.md): how to choose GitHub Actions or reusable GH-AW markdown.
+- [Workflow Factory](workflow-factory.md): LabelOps and MCP architecture for generating workflows.
 - [Architecture](architecture.md): package responsibilities and extension points.
 - [Philosophy](philosophy.md): design rules for lean agentic workflows.

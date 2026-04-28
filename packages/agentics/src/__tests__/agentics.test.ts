@@ -13,7 +13,18 @@
 // limitations under the License.
 
 import { describe, expect, it } from 'vitest';
-import { analyzeConversation, createArtifactPaths, createRefinementPlan } from '../index.js';
+import {
+  WorkflowCategory,
+  WorkflowFactoryArtifactPurpose,
+  analyzeConversation,
+  createArtifactPaths,
+  createRefinementPlan,
+  createWorkflowFactoryPlan,
+  createWorkflowRequest,
+  deriveWorkflowSpec,
+  renderWorkflowArtifacts,
+  validateWorkflowFactoryArtifacts,
+} from '../index.js';
 
 describe('createArtifactPaths', () => {
   it('should build artifact paths from run ID and default dir', () => {
@@ -40,6 +51,108 @@ describe('createRefinementPlan', () => {
     expect(plan.commands.run).toContain('gh aw run');
     expect(plan.commands.downloadArtifacts).toContain('gh run download');
     expect(plan.artifactPaths.baseDir).toBe('refinements/run-42');
+  });
+});
+
+describe('createWorkflowFactoryPlan', () => {
+  it('should build a workflow factory plan with artifacts and validation', () => {
+    const request = createWorkflowRequest({
+      author: 'octocat',
+      body: 'I need a workflow that analyzes stale documentation.',
+      issueNumber: 123,
+      labels: ['workflow', 'workflow:requested'],
+      title: 'workflow: stale docs analysis',
+    });
+
+    const plan = createWorkflowFactoryPlan(request);
+
+    expect(plan.request.issueNumber).toBe(123);
+    expect(plan.spec.category).toBe(WorkflowCategory.Analysis);
+    expect(plan.artifacts.length).toBe(2);
+    expect(plan.validationErrors).toEqual([]);
+  });
+});
+
+describe('createWorkflowRequest', () => {
+  it('should normalize partial workflow issue input', () => {
+    const request = createWorkflowRequest({
+      body: '  I need   workflow help. ',
+      title: ' workflow:   Example Workflow ',
+    });
+
+    expect(request.author).toBe('unknown');
+    expect(request.body).toBe('I need workflow help.');
+    expect(request.labels).toEqual(['workflow']);
+    expect(request.title).toBe('workflow: Example Workflow');
+  });
+});
+
+describe('deriveWorkflowSpec', () => {
+  it('should derive a generated workflow spec when no category language matches', () => {
+    const request = createWorkflowRequest({
+      body: 'I need a workflow that creates release notes.',
+      title: '',
+    });
+
+    const spec = deriveWorkflowSpec(request);
+
+    expect(spec.category).toBe(WorkflowCategory.Generation);
+    expect(spec.name).toBe('generated-workflow');
+  });
+
+  it('should derive an evaluation workflow spec from benchmark language', () => {
+    const request = createWorkflowRequest({
+      body: 'I need a workflow that benchmarks candidate usage files.',
+      title: 'workflow: benchmark usage',
+    });
+
+    const spec = deriveWorkflowSpec(request);
+
+    expect(spec.category).toBe(WorkflowCategory.Evaluation);
+    expect(spec.name).toBe('benchmark-usage');
+    expect(spec.safeOutputs).toContain('proposed-file-changes');
+  });
+});
+
+describe('renderWorkflowArtifacts', () => {
+  it('should render workflow and documentation artifact proposals', () => {
+    const spec = deriveWorkflowSpec(
+      createWorkflowRequest({
+        body: 'I need a workflow that improves prompts.',
+        title: 'workflow: improve prompts',
+      }),
+    );
+
+    const artifacts = renderWorkflowArtifacts(spec);
+
+    expect(artifacts[0]?.content).toContain('---');
+    expect(artifacts[0]?.content).toContain('# improve-prompts');
+    expect(artifacts[0]?.path).toBe('workflows/improve-prompts.md');
+    expect(artifacts[0]?.purpose).toBe(WorkflowFactoryArtifactPurpose.Workflow);
+    expect(artifacts[1]?.purpose).toBe(WorkflowFactoryArtifactPurpose.Docs);
+  });
+});
+
+describe('validateWorkflowFactoryArtifacts', () => {
+  it('should report missing generated workflow requirements', () => {
+    const errors = validateWorkflowFactoryArtifacts(
+      {
+        acceptanceCriteria: [],
+        category: WorkflowCategory.Generation,
+        description: '',
+        inputs: {},
+        mcpTools: [],
+        name: '',
+        outputs: {},
+        permissions: {},
+        safeOutputs: [],
+        steps: [],
+      },
+      [],
+    );
+
+    expect(errors).toContain('Workflow name is required.');
+    expect(errors).toContain('A workflow artifact is required.');
   });
 });
 

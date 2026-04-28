@@ -1,7 +1,7 @@
 name: Workflow Creation
 description: Request creation of a new agentic workflow.
 title: "workflow: "
-labels: [workflow]
+labels: [workflow, "workflow:requested", needs-triage]
 body:
   - type: input
     id: workflow_name

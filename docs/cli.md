@@ -6,17 +6,18 @@ machine-readable JSON so the output can be piped into scripts, CI jobs, or workf
 Run commands from the repository root.
 
 ```bash
-npm run cli -- refine run --workflow workflows/analysis/workflow-analysis.yaml --run-id 123
+npm run cli -- refine run --workflow workflows/workflow-factory.md --run-id 123
 npm run cli -- refine analyze --conversation "Agent reasoning about tools"
 npm run cli -- refine extract --run-id 123
 ```
 
-## Command Group
+## Command Groups
 
-All current commands are under `refine`.
+The CLI includes `refine`, `context`, `workflows`, and `aw` command groups.
 
 ```bash
 npm run cli -- refine --help
+npm run cli -- context --help
 ```
 
 ## Generate A Refinement Plan
@@ -25,7 +26,7 @@ Use `refine run` when you know the workflow file and run ID and want a structure
 refinement lifecycle.
 
 ```bash
-npm run cli -- refine run --workflow workflows/analysis/workflow-analysis.yaml --run-id 123
+npm run cli -- refine run --workflow workflows/workflow-factory.md --run-id 123
 ```
 
 Output shape:
@@ -39,12 +40,12 @@ Output shape:
     "usage": "refinements/123/usage.json"
   },
   "commands": {
-    "compile": "gh aw compile --workflow workflows/analysis/workflow-analysis.yaml",
+    "compile": "gh aw compile --workflow workflows/workflow-factory.md",
     "downloadArtifacts": "gh run download 123 -D refinements/123",
-    "run": "gh aw run --workflow workflows/analysis/workflow-analysis.yaml"
+    "run": "gh aw run --workflow workflows/workflow-factory.md"
   },
   "runId": "123",
-  "workflowPath": "workflows/analysis/workflow-analysis.yaml"
+  "workflowPath": "workflows/workflow-factory.md"
 }
 ```
 
@@ -143,6 +144,29 @@ The benchmark report includes raw metrics, deltas, and percentage reductions.
   "toolCallDelta": 3
 }
 ```
+
+## Dry-Run A Portable Context Cache
+
+Use `context` commands against any checked-out Git repository. The commands read tracked files and
+print proposed cache artifacts; they do not write files.
+
+```bash
+agentics context build --repo-root /path/to/repo
+agentics context validate --repo-root /path/to/repo
+agentics context summarize --repo-root /path/to/repo
+agentics context claims refresh --repo-root /path/to/repo
+```
+
+Pass labels when running from an issue or pull request automation layer.
+
+```bash
+agentics context build \
+  --repo-root /path/to/repo \
+  --label type:maintenance priority:p2 state:needs-context context-cache:refresh
+```
+
+The output includes recursive summaries, live and stale git-pinned claims, label state, proposed
+target-repository artifacts, and validation errors.
 
 ## Common Failures
 

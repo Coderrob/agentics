@@ -36,7 +36,7 @@ export interface IDownloadWithFallbackOptions {
 /**
  * Executes the GH AW compile step for the given workflow path.
  * Arguments are passed directly to the process to prevent shell injection.
- * @param path - Path to the workflow YAML file.
+ * @param path - Path to the workflow source file.
  * @returns Captured stdout and stderr from the compile command.
  */
 export async function compileWorkflow(path: string): Promise<IExecResult> {
@@ -48,7 +48,7 @@ export async function compileWorkflow(path: string): Promise<IExecResult> {
  * Builds the shell command string to compile a GH AW workflow file (for display only).
  * This string is never passed to a shell executor; actual execution uses
  * {@link compileWorkflow} which calls execFile with individual arguments.
- * @param path - Path to the workflow YAML file.
+ * @param path - Path to the workflow source file.
  * @returns The shell command string.
  */
 export function compileWorkflowCommand(path: string): string {
@@ -141,7 +141,7 @@ export async function executeAgenticWorkflowCommand(args: readonly string[]): Pr
 /**
  * Executes the GH AW run step for the given workflow path.
  * Arguments are passed directly to the process to prevent shell injection.
- * @param path - Path to the workflow YAML file.
+ * @param path - Path to the workflow source file.
  * @returns Captured stdout and stderr from the run command.
  */
 export async function runWorkflow(path: string): Promise<IExecResult> {
@@ -153,7 +153,7 @@ export async function runWorkflow(path: string): Promise<IExecResult> {
  * Builds the shell command string to execute a GH AW workflow file (for display only).
  * This string is never passed to a shell executor; actual execution uses
  * {@link runWorkflow} which calls execFile with individual arguments.
- * @param path - Path to the workflow YAML file.
+ * @param path - Path to the workflow source file.
  * @returns The shell command string.
  */
 export function runWorkflowCommand(path: string): string {

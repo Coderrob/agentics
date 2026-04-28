@@ -5,7 +5,8 @@
 - `packages/agentics`: Workflow orchestration and refinement planning
 - `packages/github`: GitHub CLI command helpers
 - `packages/ai`: AI provider abstraction with Ollama default
-- `workflows`: Analysis, generation, refinement, evaluation catalog
+- `.github/workflows`: this repository's deterministic GitHub Actions YAML
+- `workflows`: reusable GitHub Agentic Workflow markdown sources for other repositories
 
 ## Package Responsibilities
 

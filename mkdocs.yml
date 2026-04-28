@@ -3,8 +3,10 @@ site_description: Agentics monorepo documentation
 nav:
   - Home: index.md
   - CLI: cli.md
+  - Context Cache: context-cache.md
   - Refinement: refinement.md
   - Workflows: workflows.md
+  - Workflow Factory: workflow-factory.md
   - Architecture: architecture.md
   - Philosophy: philosophy.md
 theme:
