@@ -65,6 +65,9 @@ npm run cli -- refine extract --run-id 1001
 Reusable GH-AW markdown sources live in `/workflows`. Workflows used only by this repository live in
 `.github/workflows` as normal GitHub Actions YAML.
 
+Install reusable GH-AW sources into a target repository by copying them to that repository's
+`.github/workflows/*.md`, then running `gh aw compile` there.
+
 ## Performance Optimization Philosophy
 
 Optimization targets:

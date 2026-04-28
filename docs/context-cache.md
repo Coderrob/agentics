@@ -15,7 +15,8 @@ For this repository, the deterministic workflow lives at `.github/workflows/cont
 
 For another repository, copy that workflow into the target repository's `.github/workflows/`
 directory and make sure the target repository can install and run the Agentics CLI. No
-`gh aw compile` step is needed because this workflow does not require agent reasoning.
+`gh aw compile` step is needed because this workflow is normal GitHub Actions YAML, not GH-AW
+markdown.
 
 ## Trigger Behavior
 

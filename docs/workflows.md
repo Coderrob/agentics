@@ -27,6 +27,10 @@ Use `workflows/*.md` files for reusable GitHub Agentic Workflows that are meant 
 other repositories. A GitHub Agentic Workflow is markdown with frontmatter and natural-language
 instructions. It is compiled by `gh aw compile` into a hardened GitHub Actions lock file.
 
+GitHub Agentic Workflows are installed in a repository under `.github/workflows/*.md`. The
+`workflows/` directory in this repository is a distribution source for reusable workflow templates,
+not the final installed location.
+
 Example:
 
 - `workflows/workflow-factory.md`
@@ -55,7 +59,7 @@ under `workflows/` with:
 
 ## Compile Agentic Workflows
 
-Compile markdown agentic workflow sources only:
+Compile reusable markdown sources when you need a local syntax/security check:
 
 ```bash
 npm run workflows:compile
@@ -63,3 +67,22 @@ npm run workflows:compile
 
 The compile command scans `workflows/` for `.md` files. It does not compile this repository's normal
 GitHub Actions YAML files.
+
+Generated `/workflows/*.lock.yml` files are ignored in this source repository because reusable
+templates are not installed here. When a template is copied into another repository as
+`.github/workflows/<name>.md`, run `gh aw compile` in that target repository and commit both the
+installed `.md` source and the generated `.lock.yml` file there.
+
+## Install A Reusable Workflow
+
+To install `workflows/workflow-factory.md` in another repository:
+
+```bash
+mkdir -p .github/workflows
+cp workflows/workflow-factory.md .github/workflows/workflow-factory.md
+gh aw compile --workflow .github/workflows/workflow-factory.md
+git add .github/workflows/workflow-factory.md
+git add .github/workflows/workflow-factory.lock.yml
+```
+
+After installation, configure any required secrets or engine settings for the target repository.
