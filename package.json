@@ -24,7 +24,9 @@
   "scripts": {
     "build": "turbo run build",
     "circular": "madge --circular --extensions ts apps/cli/src packages/agentics/src packages/ai/src packages/core/src packages/github/src",
-    "cli": "npm run -w @agentics/cli cli --",
+    "cli": "npm run cli:build && npm run cli:run --",
+    "cli:build": "npm run build",
+    "cli:run": "node apps/cli/dist/index.js",
     "coverage": "turbo run coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
