@@ -19,7 +19,7 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/coverage/**', '**/.turbo/**', 'site/**', 'tendril/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', '**/coverage/**', '**/.turbo/**', 'site/**'],
   },
   {
     ...zeroTolerance.configs.strict,
