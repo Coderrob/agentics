@@ -12,10 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { execFile } from 'node:child_process';
+import { mkdir, mkdtemp, rm, unlink, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { promisify } from 'node:util';
 import { Command } from 'commander';
 import { describe, expect, it } from 'vitest';
 import { registerContextCommands } from '../commands/context.js';
 import { createCommandRuntime } from '../runtime.js';
+
+const execFileAsync = promisify(execFile);
 
 describe('context commands', () => {
   it('should dry-run full context cache generation for a target repository', async () => {
@@ -98,5 +105,36 @@ describe('context commands', () => {
     expect(result.stateSnapshot.typeLabels).toEqual(['type:maintenance']);
     expect(result.stateSnapshot.workflowLabels).toEqual(['context-cache:refresh']);
     expect(result.artifacts.length).toBeGreaterThan(0);
+  });
+
+  it('should tolerate invalid claims and missing tracked files during validation', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'agentics-context-invalid-'));
+
+    try {
+      let capturedOutput = '';
+      const claimsDirectory = join(dir, '.agentics', 'context', 'claims');
+      const missingPath = join(dir, 'tracked.md');
+      const root = new Command();
+      const runtime = createCommandRuntime([], (output: string) => {
+        capturedOutput += output;
+      });
+
+      await execFileAsync('git', ['init'], { cwd: dir });
+      await writeFile(missingPath, '# Tracked\n');
+      await execFileAsync('git', ['add', 'tracked.md'], { cwd: dir });
+      await unlink(missingPath);
+      await mkdir(claimsDirectory, { recursive: true });
+      await writeFile(join(claimsDirectory, 'index.json'), '{invalid');
+
+      registerContextCommands(root, runtime);
+      await root.parseAsync(['node', 'test', 'context', 'validate', '--repo-root', dir]);
+
+      const result = JSON.parse(capturedOutput);
+      expect(result.claims).toHaveLength(1);
+      expect(result.claims[0].evidence).toEqual([]);
+      expect(result.artifacts.length).toBeGreaterThan(0);
+    } finally {
+      await rm(dir, { force: true, recursive: true });
+    }
   });
 });

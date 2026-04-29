@@ -36,6 +36,7 @@
     "lint": "npm run lint:es && npm run lint:md",
     "lint:es": "eslint . --max-warnings 0",
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#tendril\" \"#tendril/**\" \"#**/*.lock.yml\"",
+    "quality": "npm run typecheck && npm run lint && npm test && npm run coverage && npm run circular && npm run knip && npm run jscpd && npm run format:check",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "workflows:compile": "npm run cli -- workflows compile --directory ../../workflows"
