@@ -15,16 +15,30 @@
 import { type Dirent } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { createWorkflowFactoryPlan, createWorkflowRequest } from '@agentics/agentics';
 import { executeAgenticWorkflowCommand } from '@agentics/github';
 import { Command } from 'commander';
 import type { ICommandRuntime } from '../runtime.js';
+import { writeJson } from '../runtime.js';
 
-/** Default directory containing source workflow files. */
+/** Default directory containing GitHub Agentic Workflow markdown source files. */
 const DEFAULT_WORKFLOWS_DIRECTORY = 'workflows';
+
+/** Base-10 radix for parsing issue numbers. */
+const DECIMAL_RADIX = 10;
 
 /** Options for the workflow compile command. */
 interface IWorkflowCompileOptions {
   readonly directory?: string;
+}
+
+/** Options for the workflow factory dry-run command. */
+interface IWorkflowFactoryOptions {
+  readonly author?: string;
+  readonly body: string;
+  readonly issueNumber?: number;
+  readonly label?: readonly string[];
+  readonly title?: string;
 }
 
 /**
@@ -82,8 +96,27 @@ function createCompileWorkflowsAction(
 }
 
 /**
- * Executes the GitHub Agentic Workflows compiler for one markdown file.
- * @param workflowPath - Markdown workflow path to compile.
+ * Creates the Commander action for the workflow factory dry-run command.
+ * @param runtime - Runtime adapter used for command output.
+ * @returns A configured Commander action handler.
+ */
+function createWorkflowFactoryAction(
+  runtime: Readonly<ICommandRuntime>,
+): (options: Readonly<IWorkflowFactoryOptions>) => void {
+  /**
+   * Executes the workflow factory dry-run command action.
+   * @param options - Workflow factory command options.
+   */
+  function workflowFactoryAction(options: Readonly<IWorkflowFactoryOptions>): void {
+    handleWorkflowFactory(options, runtime);
+  }
+
+  return workflowFactoryAction;
+}
+
+/**
+ * Executes the GitHub Agentic Workflows compiler for one markdown source file.
+ * @param workflowPath - Markdown workflow source path to compile.
  * @param runtime - Runtime adapter used for command output.
  */
 async function executeWorkflowCompile(workflowPath: string, runtime: Readonly<ICommandRuntime>): Promise<void> {
@@ -130,6 +163,23 @@ async function findWorkflowSourceFiles(directory: string): Promise<readonly stri
 }
 
 /**
+ * Runs the workflow factory dry-run command.
+ * @param options - Workflow factory command options.
+ * @param runtime - Runtime adapter used for command output.
+ */
+function handleWorkflowFactory(options: Readonly<IWorkflowFactoryOptions>, runtime: Readonly<ICommandRuntime>): void {
+  const request = createWorkflowRequest({
+    author: options.author,
+    body: options.body,
+    issueNumber: options.issueNumber,
+    labels: options.label,
+    title: options.title,
+  });
+
+  writeJson(runtime, createWorkflowFactoryPlan(request));
+}
+
+/**
  * Inserts a path into a sorted immutable path list.
  * @param paths - Existing sorted paths.
  * @param path - Path to insert.
@@ -163,11 +213,19 @@ function insertSortedPath(paths: readonly string[], path: string): readonly stri
 /**
  * Checks whether a file name is a source workflow file.
  * @param fileName - File name to inspect.
- * @returns True when the file is a YAML workflow source and not a generated lock file.
+ * @returns True when the file is a Markdown GitHub Agentic Workflow source file.
  */
 function isWorkflowSourceFile(fileName: string): boolean {
-  const isYamlFile = fileName.endsWith('.yaml') || fileName.endsWith('.yml');
-  return isYamlFile && !fileName.endsWith('.lock.yml');
+  return fileName.endsWith('.md');
+}
+
+/**
+ * Parses a CLI issue number option.
+ * @param value - Issue number string.
+ * @returns Parsed issue number.
+ */
+function parseIssueNumber(value: string): number {
+  return Number.parseInt(value, DECIMAL_RADIX);
 }
 
 /**
@@ -180,7 +238,17 @@ export function registerWorkflowCommands(program: Readonly<Command>, runtime: Re
 
   workflows
     .command('compile')
-    .description('Compile YAML workflows through the GitHub Agentic Workflows extension')
-    .option('-d, --directory <path>', 'Directory containing YAML workflow files', DEFAULT_WORKFLOWS_DIRECTORY)
+    .description('Compile Markdown workflows through the GitHub Agentic Workflows extension')
+    .option('-d, --directory <path>', 'Directory containing Markdown workflow files', DEFAULT_WORKFLOWS_DIRECTORY)
     .action(createCompileWorkflowsAction(runtime));
+
+  workflows
+    .command('factory')
+    .description('Dry-run a LabelOps workflow factory request')
+    .requiredOption('-b, --body <text>', 'Natural-language workflow request body')
+    .option('-a, --author <login>', 'Issue author login')
+    .option('-i, --issue-number <number>', 'Issue number', parseIssueNumber)
+    .option('-l, --label <label...>', 'Issue labels')
+    .option('-t, --title <title>', 'Issue title')
+    .action(createWorkflowFactoryAction(runtime));
 }

@@ -30,6 +30,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate workflow schema shape
+      - name: Validate workflow source separation
         run: |
-          node -e "const fs=require('fs');const path=require('path');const dirs=['workflows/analysis','workflows/generation','workflows/refinement','workflows/evaluation'];for(const d of dirs){for(const f of fs.readdirSync(d)){if(!f.endsWith('.yaml')&&!f.endsWith('.yml'))continue;const c=fs.readFileSync(path.join(d,f),'utf8');for(const key of ['name:','category:','inputs:','outputs:','steps:']){if(!c.includes(key)){throw new Error(path.join(d,f)+' missing '+key)}}}}console.log('Workflow schema checks passed')"
+          node -e "const fs=require('fs');const path=require('path');const actionsDir='.github/workflows';for(const f of fs.readdirSync(actionsDir)){const p=path.join(actionsDir,f);if(!fs.statSync(p).isFile())continue;const c=fs.readFileSync(p,'utf8');if(f.endsWith('.md')){throw new Error(p+' is reusable GH-AW markdown and belongs under workflows/')}if((f.endsWith('.yml')||f.endsWith('.yaml'))&&/^category:/m.test(c)){throw new Error(p+' looks like an Agentics catalog file, not a GitHub Actions workflow')}}const reusableDir='workflows';for(const f of fs.readdirSync(reusableDir)){const p=path.join(reusableDir,f);if(!fs.statSync(p).isFile())continue;const c=fs.readFileSync(p,'utf8');if(!f.endsWith('.md')){throw new Error(p+' is not a reusable GH-AW markdown source')}if(!c.startsWith('---')||!c.includes('safe-outputs:')){throw new Error(p+' is missing GitHub Agentic Workflow frontmatter')}}console.log('Workflow source separation checks passed')"

@@ -1,7 +1,7 @@
 {
   "description": "Agentics monorepo for workflow orchestration, refinement, and optimization.",
   "devDependencies": {
-    "@coderrob/eslint-plugin-zero-tolerance": "^1.2.3",
+    "@coderrob/eslint-plugin-zero-tolerance": "^1.2.4",
     "@types/node": "^22.15.3",
     "@typescript-eslint/parser": "^8.59.0",
     "@vitest/coverage-v8": "^3.2.4",
@@ -24,7 +24,9 @@
   "scripts": {
     "build": "turbo run build",
     "circular": "madge --circular --extensions ts apps/cli/src packages/agentics/src packages/ai/src packages/core/src packages/github/src",
-    "cli": "npm run -w @agentics/cli cli --",
+    "cli": "npm run cli:build && npm run cli:run --",
+    "cli:build": "npm run build",
+    "cli:run": "node apps/cli/dist/index.js",
     "coverage": "turbo run coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -35,7 +37,8 @@
     "knip": "knip",
     "lint": "npm run lint:es && npm run lint:md",
     "lint:es": "eslint . --max-warnings 0",
-    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#**/*.lock.yml\"",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#tendril\" \"#tendril/**\" \"#**/*.lock.yml\"",
+    "quality": "npm run typecheck && npm run lint && npm test && npm run coverage && npm run circular && npm run knip && npm run jscpd && npm run format:check",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "workflows:compile": "npm run cli -- workflows compile --directory ../../workflows"

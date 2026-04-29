@@ -10,6 +10,9 @@ node_modules/
 .turbo/
 .cache/
 
+# Nested reference repositories
+tendril/
+
 # Lock files
 package-lock.json
 *.lock.yml

@@ -4,7 +4,14 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./context": {
+      "types": "./src/context.ts",
+      "default": "./dist/context.js"
+    }
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -16,6 +23,7 @@
   },
   "dependencies": {
     "@agentics/ai": "0.1.0",
-    "@agentics/github": "0.1.0"
+    "@agentics/github": "0.1.0",
+    "@coderrob/typescript-type-guards": "^1.0.1"
   }
 }

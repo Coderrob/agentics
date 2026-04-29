@@ -1,140 +1,88 @@
-# Workflow Catalog
+# Workflow Sources
 
-Workflows are grouped into:
+This repository uses two different workflow formats. Keep them separate.
 
-- `analysis`
-- `generation`
-- `refinement`
-- `evaluation`
+## GitHub Actions
 
-Each workflow is YAML-defined with metadata, inputs, outputs, and execution steps.
+Use normal `.github/workflows/*.yml` files for deterministic automation that does not need an agent
+to interpret context or make judgment calls. These workflows are for this repository.
 
-## Directory Layout
+Examples:
 
-Workflow files live under `workflows/{category}`.
+- `.github/workflows/ci.yml`
+- `.github/workflows/context-cache.yml`
+- `.github/workflows/context-cache-effectiveness.yml`
+- `.github/workflows/validate-workflows.yml`
 
-```text
-workflows/
-  analysis/
-    workflow-analysis.yaml
-  evaluation/
-    workflow-evaluation.yaml
-  generation/
-    workflow-generation.yaml
-  refinement/
-    workflow-refinement.yaml
-```
+Good fits for GitHub Actions:
 
-## Workflow File Shape
+- linting, testing, typechecking, coverage, and static validation
+- running deterministic Agentics CLI commands
+- validating or benchmarking existing files
+- uploading reports as artifacts
 
-Every workflow should define:
+## GitHub Agentic Workflows
 
-- `name`: stable workflow identifier.
-- `category`: one of `analysis`, `generation`, `refinement`, or `evaluation`.
-- `description`: one sentence describing the workflow purpose.
-- `inputs`: named inputs and their primitive types.
-- `outputs`: named outputs and their primitive types.
-- `steps`: ordered shell commands or Agentics CLI commands.
+Use `workflows/*.md` files for reusable GitHub Agentic Workflows that are meant to be installed in
+other repositories. A GitHub Agentic Workflow is markdown with frontmatter and natural-language
+instructions. It is compiled by `gh aw compile` into a hardened GitHub Actions lock file.
+
+GitHub Agentic Workflows are installed in a repository under `.github/workflows/*.md`. The
+`workflows/` directory in this repository is a distribution source for reusable workflow templates,
+not the final installed location.
 
 Example:
 
-```yaml
-name: workflow-analysis
-category: analysis
-description: Analyze workflow traces for redundant reasoning and tool call inefficiencies.
-inputs:
-  workflow_path:
-    type: string
-  run_id:
-    type: string
-outputs:
-  optimization_findings:
-    type: object
-steps:
-  - name: compile
-    run: gh aw compile --workflow ${inputs.workflow_path}
-  - name: execute
-    run: gh aw run --workflow ${inputs.workflow_path}
-  - name: extract
-    run: gh run download ${inputs.run_id} -D refinements/${inputs.run_id}
-```
+- `workflows/workflow-factory.md`
 
-## Choose The Right Category
+Good fits for GitHub Agentic Workflows:
 
-Use `analysis` for workflows that inspect existing traces, artifacts, or run metadata.
+- interpreting natural-language issue requests
+- deciding whether a requested workflow should be Actions YAML or GH-AW markdown
+- generating reviewable workflow proposals
+- choosing safe outputs based on repository context
 
-Use `generation` for workflows that create new workflow scaffolds or metadata.
+## Authoring Rule
 
-Use `refinement` for workflows that inspect a run and produce suggested changes.
+Before creating a workflow, ask whether the behavior requires reasoning.
 
-Use `evaluation` for workflows that compare baseline and candidate outcomes.
+If it does not, write a normal GitHub Actions `.yml` workflow.
 
-## Author A New Workflow
+If it does and it is meant for other repositories, write a GitHub Agentic Workflow `.md` source
+under `workflows/` with:
 
-1. Create a YAML file under the matching category directory.
-2. Give the workflow a stable lowercase `name`.
-3. Define inputs before writing steps.
-4. Keep each step deterministic and directly executable.
-5. Prefer Agentics CLI commands for refinement operations.
-6. Run repository checks before committing the workflow.
+- frontmatter triggers
+- least-privilege permissions
+- safe outputs for write operations
+- concise natural-language instructions
+- explicit review requirements for generated files
 
-## Use Agentics Commands In Workflow Steps
+## Compile Agentic Workflows
 
-For refinement planning:
-
-```yaml
-steps:
-  - name: plan
-    run: agentics refine run --workflow ${inputs.workflow_path} --run-id ${inputs.run_id}
-```
-
-For transcript analysis:
-
-```yaml
-steps:
-  - name: analyze
-    run: agentics refine analyze --conversation "${inputs.conversation}"
-```
-
-For usage comparison:
-
-```yaml
-steps:
-  - name: compare
-    run: >-
-      agentics refine benchmark --baseline ${inputs.baseline_usage} --candidate
-      ${inputs.candidate_usage}
-```
-
-When an input points to a file, name the input as a path, such as `baseline_usage_path`, so the
-workflow is clear to both humans and scripts.
-
-## Validate Workflow Changes
-
-Workflow YAML is not typechecked by TypeScript, so validate it through review and command execution.
-
-Before committing:
+Compile reusable markdown sources when you need a local syntax/security check:
 
 ```bash
-npm run format:check
-npm run lint
-npm test
+npm run workflows:compile
 ```
 
-If the workflow calls GitHub Agentic Workflows commands, also run the compile command:
+The compile command scans `workflows/` for `.md` files. It does not compile this repository's normal
+GitHub Actions YAML files.
+
+Generated `/workflows/*.lock.yml` files are ignored in this source repository because reusable
+templates are not installed here. When a template is copied into another repository as
+`.github/workflows/<name>.md`, run `gh aw compile` in that target repository and commit both the
+installed `.md` source and the generated `.lock.yml` file there.
+
+## Install A Reusable Workflow
+
+To install `workflows/workflow-factory.md` in another repository:
 
 ```bash
-gh aw compile --workflow workflows/analysis/workflow-analysis.yaml
+mkdir -p .github/workflows
+cp workflows/workflow-factory.md .github/workflows/workflow-factory.md
+gh aw compile --workflow .github/workflows/workflow-factory.md
+git add .github/workflows/workflow-factory.md
+git add .github/workflows/workflow-factory.lock.yml
 ```
 
-## Current Catalog Notes
-
-`workflow-analysis.yaml` contains direct GitHub command steps for compile, execute, and artifact
-download.
-
-`workflow-refinement.yaml` demonstrates the Agentics analysis and artifact path commands.
-
-`workflow-generation.yaml` is a scaffold example that currently calls `refine run`.
-
-`workflow-evaluation.yaml` is a placeholder for benchmark automation. Replace its `echo` command
-with `agentics refine benchmark` when baseline and candidate usage file paths are available.
+After installation, configure any required secrets or engine settings for the target repository.

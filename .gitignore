@@ -142,6 +142,9 @@ vite.config.ts.timestamp-*
 refinements/*
 !refinements/.gitkeep
 
+# Generated GH-AW locks for reusable workflow templates
+workflows/*.lock.yml
+
 # Turborepo cache
 .turbo
 

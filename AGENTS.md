@@ -1,159 +1,189 @@
-# AGENTS.md — Agentics Repository Quality Contract
+# AGENTS.md - Agentics Repository Quality Contract
 
-This file defines the non-negotiable quality gates that **every agent and contributor** must satisfy
-before a change is considered complete. All checks must pass with zero failures on every PR.
+This file is the operating contract for AI agents and human contributors working in this repository.
+Follow it before, during, and after every code or documentation change.
 
----
+## Agent Operating Rules
+
+- Work from the repository root unless a command explicitly says otherwise.
+- Prefer existing project patterns over new abstractions.
+- Keep changes scoped to the user's request.
+- Do not revert unrelated user changes.
+- Do not bypass lint, test, type, coverage, dependency, duplication, or formatting checks.
+- Do not add inline `eslint-disable` comments.
+- Treat every failed quality gate as a blocker unless the user explicitly accepts the failure.
+- Report any command that could not be run, including the reason.
+
+## Repository Structure
+
+- `apps/cli`: Commander-based CLI application.
+- `packages/core`: pure shared logic and reusable utilities.
+- `packages/agentics`: workflow, context-cache, and agentic-domain logic.
+- `packages/ai`: AI provider abstractions.
+- `packages/github`: GitHub integration helpers.
+- `docs`: product and how-to documentation.
+- `workflows`: reusable GitHub Agentic Workflow Markdown sources for installation in other repos.
+- `.github/workflows`: this repository's normal GitHub Actions workflows.
+
+GitHub Agentic Workflows are Markdown files with frontmatter. Reusable sources belong in
+`workflows/*.md`. Workflows that only serve this repository and do not require agent reasoning
+belong in `.github/workflows/*.yml` as normal GitHub Actions workflows.
+
+## Completion Definition
+
+A change is complete only when:
+
+- The requested behavior is implemented or the requested analysis is delivered.
+- Relevant tests or documentation are updated.
+- All applicable quality gates pass.
+- Any skipped gate is clearly reported with the reason.
+- The final response lists what changed and what was verified.
 
 ## Quality Gates
 
-### 1. Lint — Zero Tolerance
+Run these commands from the repository root.
 
-Run from the repository root:
+### 1. Lint
 
 ```bash
 npm run lint
 ```
 
-This runs two sub-checks in sequence:
+This runs:
 
-- **`npm run lint:es`** — ESLint 10.x with **`@coderrob/eslint-plugin-zero-tolerance` strict**
-  config.
-  - Applies to **all TypeScript files** across the entire monorepo, including config files
-    (`vitest.config.ts`, etc.) and the `refinements/` folder.
-  - `--max-warnings 0` is enforced — warnings are treated as errors.
-  - **Inline `eslint-disable` comments are strictly forbidden.** The
-    `zero-tolerance/no-eslint-disable` rule enforces this automatically.
-  - Do not add per-file or per-line overrides to bypass rules. If a rule is inappropriate for a
-    specific file category (e.g., test files), update `eslint.config.mjs` at the config level —
-    never inline in source.
-- **`npm run lint:md`** — markdownlint-cli2 with rules in `.markdownlint.json`.
-  - All Markdown files are checked; `node_modules/` is excluded.
-  - Line length is capped at 120 characters; code blocks and tables are exempt.
+- `npm run lint:es`: ESLint 10.x with `@coderrob/eslint-plugin-zero-tolerance` strict config.
+- `npm run lint:md`: markdownlint-cli2 using `.markdownlint.json`.
 
-### 2. Tests — All Must Pass
+Requirements:
 
-Run from the repository root:
+- ESLint applies to all TypeScript files across the monorepo, including config files.
+- `--max-warnings 0` is enforced.
+- Inline ESLint disable comments are forbidden.
+- Markdown line length is capped at 120 characters, excluding code blocks and tables.
 
-```bash
-npm test
-```
-
-- Executes all Vitest test suites across every workspace package via TurboRepo.
-- Every test file must be in `src/**/*.test.ts`.
-- Test descriptions **must** start with `"should"` (enforced by
-  `zero-tolerance/require-test-description-style`).
-
-### 3. Type Check — Zero Errors
-
-Run from the repository root:
+### 2. Type Check
 
 ```bash
 npm run typecheck
 ```
 
+Requirements:
+
 - Runs `tsc --noEmit` in every workspace package.
 - No TypeScript errors are permitted.
 
-### 4. Test Coverage — ≥ 95%
+### 3. Tests
 
-Run from the repository root:
+```bash
+npm test
+```
+
+Requirements:
+
+- Runs all Vitest suites across workspace packages through TurboRepo.
+- Test files must be in `src/**/*.test.ts`.
+- Test descriptions must start with `should`.
+
+### 4. Coverage
 
 ```bash
 npm run coverage
 ```
 
-- Uses `@vitest/coverage-v8` with enforced thresholds of **95%** for lines, functions, branches, and
-  statements.
-- Thresholds are configured in `vitest.package.config.ts` and cannot be lowered.
-- Coverage is checked per-package. A package that drops below 95% in any dimension fails the gate.
+Requirements:
 
-### 5. Circular Reference Check — Zero Cycles
+- Uses `@vitest/coverage-v8`.
+- Lines, functions, branches, and statements must each be at least 95%.
+- Coverage is enforced per package.
+- Do not lower thresholds in `vitest.package.config.ts`.
 
-Run from the repository root:
+### 5. Circular Dependencies
 
 ```bash
 npm run circular
 ```
 
-- Uses **madge** to detect circular imports within package source trees.
+Requirements:
+
+- Uses madge to inspect package source trees.
 - No circular dependencies are permitted.
 
-### 6. Unused Code — Knip
-
-Run from the repository root:
+### 6. Unused Code
 
 ```bash
 npm run knip
 ```
 
-- Uses **knip** to identify unused exports, unreferenced files, and unlisted dependencies.
+Requirements:
+
+- No unused exports, unreferenced files, or unlisted dependencies.
 - Every exported symbol must be reachable from a package entry point.
-- Fix partial implementations: if a function is exported but never consumed, either use it or remove
-  it.
+- Remove partial implementations that are not consumed, or wire them into the product.
 
-### 7. Code Duplication — JSCPD < 1 %
-
-Run from the repository root:
+### 7. Duplication
 
 ```bash
 npm run jscpd
 ```
 
-- Uses **jscpd** to measure copy-paste duplication across all TypeScript source files.
-- Duplication must remain **below 1 %**.
-- Configuration is in `.jscpd.json`. The `exitCode: 1` setting means jscpd will fail the build if
-  the threshold is exceeded.
-- If duplication is detected, extract shared logic into `packages/core` as a pure utility.
+Requirements:
 
-### 8. Formatting — Prettier
+- Copy-paste duplication across TypeScript source files must remain below 1%.
+- Do not raise the threshold in `.jscpd.json`.
+- Extract repeated logic into `packages/core` when appropriate.
 
-Run from the repository root:
+### 8. Formatting
 
 ```bash
 npm run format:check
 ```
 
-- Uses **Prettier 3.x** with the configuration in `prettier.config.mjs`.
-- All TypeScript, JSON, YAML, and Markdown files must be formatted consistently.
-- Run `npm run format` to auto-fix formatting before committing.
-- The `eslint-config-prettier` integration disables any ESLint rules that conflict with Prettier.
+Requirements:
 
----
+- Uses Prettier 3.x with `prettier.config.mjs`.
+- TypeScript, JSON, YAML, and Markdown must be formatted.
+- Use `npm run format` to fix formatting when needed.
 
-## Forbidden Patterns
+## Run All Gates
 
-| Pattern                                                             | Reason                                                                           |
-| ------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `// eslint-disable`                                                 | Bypasses zero-tolerance rules — automatically caught by `no-eslint-disable` rule |
-| `// eslint-disable-next-line`                                       | Same as above                                                                    |
-| `/* eslint-disable */`                                              | Same as above                                                                    |
-| Lowering coverage thresholds in `vitest.package.config.ts`          | Hides under-tested code                                                          |
-| Adding a package to knip `ignoreDependencies` without justification | Hides unused dependencies                                                        |
-| Raising `threshold` in `.jscpd.json`                                | Allows duplication to grow                                                       |
-| Exporting symbols that are never imported                           | Creates dead code — caught by knip                                               |
-| Committing unformatted files                                        | Caught by `npm run format:check`                                                 |
-
----
-
-## Running All Gates
-
-To run every quality gate in one command (recommended before opening a PR):
+Use this before considering a change ready:
 
 ```bash
 npm run typecheck && npm run lint && npm test && npm run coverage && npm run circular && npm run knip && npm run jscpd && npm run format:check
 ```
 
----
+## TypeScript Architecture Rules
 
-## Architecture Reminders
+- Keep pure logic in `packages/core` when it is shared across packages.
+- Keep side effects at application boundaries, such as CLI commands or GitHub integration adapters.
+- Prefer immutable updates over array or object mutation.
+- Avoid type assertions such as `as T`; use type guards and `unknown` narrowing.
+- Use `@coderrob/typescript-type-guards` instead of raw `typeof` checks.
+- Interface names must start with `I`, for example `IUsageMetrics`.
+- Imports must be sorted alphabetically within each file.
+- Functions must be sorted alphabetically within each file.
+- Exported functions require full JSDoc with `@param`, `@returns`, and `@throws` when applicable.
 
-- **Functional-first**: keep pure logic in `packages/core`. Avoid side effects in exported
-  functions.
-- **No type assertions** (`as T`): use type guards or `unknown`-narrowing instead.
-- **No array/object mutation**: use immutable spread patterns.
-- **All exported functions require full JSDoc** with `@param`, `@returns`, and `@throws` tags where
-  applicable.
-- **Interface names must start with `I`** (e.g., `IUsageMetrics`).
-- **Functions must be sorted alphabetically** within each file.
-- **Imports must be sorted alphabetically** within each file.
+## Forbidden Patterns
+
+| Pattern                                                             | Reason                                   |
+| ------------------------------------------------------------------- | ---------------------------------------- |
+| `// eslint-disable`                                                 | Bypasses zero-tolerance rules            |
+| `// eslint-disable-next-line`                                       | Bypasses zero-tolerance rules            |
+| `/* eslint-disable */`                                              | Bypasses zero-tolerance rules            |
+| Lowering coverage thresholds in `vitest.package.config.ts`          | Hides under-tested code                  |
+| Adding a package to knip `ignoreDependencies` without justification | Hides unused dependencies                |
+| Raising `threshold` in `.jscpd.json`                                | Allows duplication to grow               |
+| Exporting symbols that are never imported                           | Creates dead code                        |
+| Committing unformatted files                                        | Fails `npm run format:check`             |
+| Putting reusable GH-AW Markdown in `.github/workflows`              | Confuses source templates with local CI  |
+| Putting repo-local deterministic workflows in `workflows`           | Confuses local automation with templates |
+
+## Final Response Expectations
+
+When finished, report:
+
+- Files changed.
+- Tests and quality gates run.
+- Any failures or skipped checks.
+- Any remaining risk or follow-up that is directly relevant to the user's request.

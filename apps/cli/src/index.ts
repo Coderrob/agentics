@@ -16,6 +16,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Command } from 'commander';
 import { registerAgenticWorkflowProxyCommand } from './commands/aw.js';
+import { registerContextCommands } from './commands/context.js';
 import { attachRefineCommand } from './commands/refine/index.js';
 import { registerWorkflowCommands } from './commands/workflows.js';
 import type { ICommandRuntime } from './runtime.js';
@@ -62,6 +63,7 @@ export function createCliProgram(commandRuntime: Readonly<ICommandRuntime>): Com
   command.name('agentics').description('Agentics workflow refinement CLI').version('0.1.0');
   configureCommandOutput(command, commandRuntime);
   registerAgenticWorkflowProxyCommand(command, commandRuntime);
+  registerContextCommands(command, commandRuntime);
   attachRefineCommand(command, commandRuntime);
   registerWorkflowCommands(command, commandRuntime);
 

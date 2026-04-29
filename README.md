@@ -10,7 +10,7 @@ This repository provides:
 - A monorepo architecture for workflow development and refinement
 - A Commander.js CLI for refinement operations
 - Modular packages for core logic, orchestration, GitHub integration, and AI analysis
-- A categorized workflow catalog compatible with GitHub Agentic Workflows
+- GitHub Actions for deterministic automation and GH-AW markdown for agentic automation
 - GitHub workflows, issue templates, and rulesets for governance
 
 ## Monorepo Structure
@@ -23,13 +23,9 @@ This repository provides:
   /agentics
   /github
   /ai
-/workflows
-  /analysis
-  /generation
-  /refinement
-  /evaluation
 /refinements
 /docs
+/workflows
 /.github
   /workflows
   /ISSUE_TEMPLATE
@@ -46,7 +42,7 @@ This repository provides:
 
 ```bash
 npm install
-npm run cli -- refine run --workflow workflows/analysis/workflow-analysis.yaml --run-id 1001
+npm run cli -- refine run --workflow workflows/workflow-factory.md --run-id 1001
 npm run cli -- refine analyze --conversation "Reasoning about tool call"
 npm run cli -- refine extract --run-id 1001
 ```
@@ -62,10 +58,15 @@ npm run cli -- refine extract --run-id 1001
 
 ## Workflow Examples
 
-- `workflows/analysis/workflow-analysis.yaml`
-- `workflows/generation/workflow-generation.yaml`
-- `workflows/refinement/workflow-refinement.yaml`
-- `workflows/evaluation/workflow-evaluation.yaml`
+- `.github/workflows/context-cache.yml`
+- `.github/workflows/context-cache-effectiveness.yml`
+- `workflows/workflow-factory.md`
+
+Reusable GH-AW markdown sources live in `/workflows`. Workflows used only by this repository live in
+`.github/workflows` as normal GitHub Actions YAML.
+
+Install reusable GH-AW sources into a target repository by copying them to that repository's
+`.github/workflows/*.md`, then running `gh aw compile` there.
 
 ## Performance Optimization Philosophy
 
